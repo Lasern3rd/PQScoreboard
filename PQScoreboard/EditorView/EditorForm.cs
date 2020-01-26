@@ -13,10 +13,11 @@ namespace PQScoreboard
         private static readonly ILog log = LogManager.GetLogger(typeof(EditorForm));
 
         private Scoreboard scoreboard;
+        private bool hasUnsavedChanges;
 
         public EditorForm()
         {
-            log.Info("EditorForm::ctor");
+            log.Info("EditorForm::ctor {");
 
             InitializeComponent();
             DataGridViewScores.RowHeadersVisible = true;
@@ -32,8 +33,11 @@ namespace PQScoreboard
             UpdateScreens();
 
             scoreboard = null;
+            hasUnsavedChanges = false;
             UpdateControls();
             UpdateScores();
+
+            log.Info("EditorForm::ctor }");
         }
 
         #region private functions
@@ -143,6 +147,8 @@ namespace PQScoreboard
 
         private void LoadFromFile()
         {
+            log.Info("EditorForm::LoadFromFile() {");
+
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 //openFileDialog.InitialDirectory = "c:\\";
@@ -156,18 +162,24 @@ namespace PQScoreboard
                     {
                         case ".csv":
                             scoreboard = CsvHandler.LoadFromFile(openFileDialog.OpenFile());
+                            hasUnsavedChanges = false;
                             UpdateScores();
                             UpdateControls();
                             break;
                     }
                 }
             }
+
+            log.Info("EditorForm::LoadFromFile() }");
         }
 
         private void SaveToFile()
         {
+            log.Info("EditorForm::SaveToFile() }");
+
             if (scoreboard == null)
             {
+                log.Info("EditorForm::SaveToFile() } // scoreboard == null");
                 return;
             }
 
@@ -192,6 +204,9 @@ namespace PQScoreboard
 
                 }
             }
+            hasUnsavedChanges = false;
+
+            log.Info("EditorForm::SaveToFile() }");
         }
 
         #endregion
@@ -200,7 +215,11 @@ namespace PQScoreboard
 
         private void MenuFileNew_Click(object sender, EventArgs e)
         {
-            // TODO: check save
+
+            if (hasUnsavedChanges)
+            {
+                // TODO: save
+            }
 
             try
             {
@@ -213,6 +232,7 @@ namespace PQScoreboard
                 }
 
                 scoreboard = new Scoreboard(newScoreboardForm.NumberOfTeams, newScoreboardForm.NumberOfCategories);
+                hasUnsavedChanges = false;
 
                 UpdateScores();
                 UpdateControls();
@@ -228,6 +248,11 @@ namespace PQScoreboard
 
         private void MenuFileOpen_Click(object sender, EventArgs e)
         {
+            if (hasUnsavedChanges)
+            {
+                // TODO
+            }
+
             try
             {
                 LoadFromFile();
@@ -256,10 +281,15 @@ namespace PQScoreboard
 
         private void MenuFileClose_Click(object sender, EventArgs e)
         {
-            // TODO: save
+            if (hasUnsavedChanges)
+            {
+                // TODO: save
+            }
+
             try
             {
                 scoreboard = null;
+                hasUnsavedChanges = false;
                 UpdateScores();
                 UpdateControls();
             }
@@ -273,6 +303,14 @@ namespace PQScoreboard
 
         private void MenuEditAddTeam_Click(object sender, EventArgs e)
         {
+            log.Info("EditorForm::MenuEditAddTeam_Click() {");
+
+            if (scoreboard == null)
+            {
+                log.Info("EditorForm::MenuEditAddTeam_Click() } // scoreboard == null");
+                return;
+            }
+
             AddTeamForm addTeamForm = new AddTeamForm();
             DialogResult result = addTeamForm.ShowDialog(this);
 
@@ -284,6 +322,7 @@ namespace PQScoreboard
             try
             {
                 scoreboard.AddTeam(addTeamForm.TeamName);
+                hasUnsavedChanges = true;
             }
             catch (ArgumentException ex)
             {
@@ -294,13 +333,17 @@ namespace PQScoreboard
 
             UpdateScores();
             UpdateControls();
+
+            log.Info("EditorForm::MenuEditAddTeam_Click() }");
         }
 
         private void MenuEditAddCategory_Click(object sender, EventArgs e)
         {
+            log.Info("EditorForm::MenuEditAddCategory_Click() {");
+
             if (scoreboard == null)
             {
-                // TODO: write to log
+                log.Info("EditorForm::MenuEditAddCategory_Click() } // scoreboard == null");
                 return;
             }
 
@@ -315,6 +358,7 @@ namespace PQScoreboard
             try
             {
                 scoreboard.AddCategory(addCategoryForm.CategoryName, addCategoryForm.Scores);
+                hasUnsavedChanges = true;
             }
             catch (ArgumentException ex)
             {
@@ -325,10 +369,23 @@ namespace PQScoreboard
 
             UpdateScores();
             UpdateControls();
+
+            log.Info("EditorForm::MenuEditAddCategory_Click() }");
         }
 
         private void ButtonAnimate_Click(object sender, EventArgs e)
         {
+            // TODO create backup
+            // TODO error handling
+
+            log.Info("EditorForm::ButtonAnimate_Click() {");
+
+            if (scoreboard == null)
+            {
+                log.Info("EditorForm::ButtonAnimate_Click() } // scoreboard == null");
+                return;
+            }
+
             ResultForm inputDialog = new ResultForm();
 
             inputDialog.WindowState = FormWindowState.Normal;
@@ -344,6 +401,8 @@ namespace PQScoreboard
             }
 
             inputDialog.Dispose();
+
+            log.Info("EditorForm::ButtonAnimate_Click() }");
         }
 
         #endregion
@@ -364,15 +423,21 @@ namespace PQScoreboard
             {
                 DataGridViewScores.Rows[category].Cells[team].Value =
                                     scoreboard.GetScore(team, category);
-                MessageBox.Show("Failed to set score for team '" + scoreboard.GetTeamName(team)
-                    + "' for category '" + scoreboard.GetCategoryName(category) + "': '"
-                    + DataGridViewScores.Rows[category].Cells[team].Value.ToString()
-                    + "' is not a valid score.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                string errorText = "Failed to set score for team '" + scoreboard.GetTeamName(team) + "' for category '"
+                    + scoreboard.GetCategoryName(category) + "': '" + DataGridViewScores.Rows[category].Cells[team].Value.ToString()
+                    + "' is not a valid score.";
+
+                log.Info("EditorForm::DataGridViewScores_CellValueChanged() } // " + errorText);
+
+                MessageBox.Show(errorText, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (scoreboard.SetScore(team, category, score))
             {
+                hasUnsavedChanges = true;
+
                 // update total score
                 DataGridViewScores.Rows[DataGridViewScores.Rows.Count - 1].Cells[team].Value =
                     scoreboard.GetTotalScore(team);
