@@ -68,7 +68,7 @@ namespace PQScoreboard
             {
                 throw new ArgumentException("Invalid category name.");
             }
-            if (teams.Contains(categoryName))
+            if (categories.Contains(categoryName))
             {
                 throw new ArgumentException("Category with name '" + categoryName + "' already exists.");
             }
@@ -178,11 +178,35 @@ namespace PQScoreboard
 
         #region properties
 
+        public bool IsValid
+        {
+            get
+            {
+                return currentTeam > 0 && currentCategory > 0;
+            }
+        }
+
+        public int ExpectedNumberOfTeams
+        {
+            get
+            {
+                return teams.Length;
+            }
+        }
+
         public string[] Teams
         {
             get
             {
                 return teams.Take(currentTeam).ToArray();
+            }
+        }
+
+        public int ExpectedNumberOfCategories
+        {
+            get
+            {
+                return categories.Length;
             }
         }
 

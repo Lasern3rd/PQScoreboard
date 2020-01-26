@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using log4net;
+using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Linq;
@@ -9,10 +10,14 @@ namespace PQScoreboard
 {
     public partial class EditorForm : Form
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(EditorForm));
+
         private Scoreboard scoreboard;
 
         public EditorForm()
         {
+            log.Info("EditorForm::ctor");
+
             InitializeComponent();
             DataGridViewScores.RowHeadersVisible = true;
             DataGridViewScores.ColumnHeadersVisible = true;
@@ -27,8 +32,11 @@ namespace PQScoreboard
             UpdateScreens();
 
             scoreboard = null;
+            UpdateControls();
             UpdateScores();
         }
+
+        #region private functions
 
         private void UpdateScreens()
         {
@@ -51,8 +59,6 @@ namespace PQScoreboard
                 ComboBoxScreen.SelectedIndex = 0;
             }
         }
-
-        #region private functions
 
         private void UpdateScores()
         {
@@ -118,6 +124,46 @@ namespace PQScoreboard
             DataGridViewScores.Enabled = true;
         }
 
+        private void UpdateControls()
+        {
+            if (scoreboard == null)
+            {
+                MenuEdit.Enabled = false;
+                MenuFileSave.Enabled = false;
+                ButtonAnimate.Enabled = false;
+            }
+            else
+            {
+                MenuEdit.Enabled = true;
+                MenuFileSave.Enabled = true;
+
+                ButtonAnimate.Enabled = scoreboard.IsValid;
+            }
+        }
+
+        private void LoadFromFile()
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                //openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "CSV files (*.csv)|*.csv|JSON files (*.json)|*.json";
+                openFileDialog.FilterIndex = 1;
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    switch (Path.GetExtension(openFileDialog.FileName))
+                    {
+                        case ".csv":
+                            scoreboard = CsvHandler.LoadFromFile(openFileDialog.OpenFile());
+                            UpdateScores();
+                            UpdateControls();
+                            break;
+                    }
+                }
+            }
+        }
+
         private void SaveToFile()
         {
             if (scoreboard == null)
@@ -138,6 +184,7 @@ namespace PQScoreboard
 
                     switch (Path.GetExtension(saveFileDialog.FileName))
                     {
+                        default:
                         case ".csv":
                             CsvHandler.SaveToFile(scoreboard, saveFileDialog.OpenFile());
                             break;
@@ -147,57 +194,81 @@ namespace PQScoreboard
             }
         }
 
-        private void LoadFromFile()
-        {
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                //openFileDialog.InitialDirectory = "c:\\";
-                openFileDialog.Filter = "CSV files (*.csv)|*.csv|JSON files (*.json)|*.json";
-                openFileDialog.FilterIndex = 1;
-                openFileDialog.RestoreDirectory = true;
-
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    switch (Path.GetExtension(openFileDialog.FileName))
-                    {
-                        case ".csv":
-                            scoreboard = CsvHandler.LoadFromFile(openFileDialog.OpenFile());
-                            UpdateScores();
-                            break;
-                    }
-                }
-            }
-        }
-
         #endregion
 
-        #region interface events
+        #region interface actions
 
         private void MenuFileNew_Click(object sender, EventArgs e)
         {
             // TODO: check save
 
-            NewScoreboardForm newScoreboardForm = new NewScoreboardForm();
-            DialogResult result = newScoreboardForm.ShowDialog(this);
-
-            if (result != DialogResult.OK)
+            try
             {
-                return;
+                NewScoreboardForm newScoreboardForm = new NewScoreboardForm();
+                DialogResult result = newScoreboardForm.ShowDialog(this);
+
+                if (result != DialogResult.OK)
+                {
+                    return;
+                }
+
+                scoreboard = new Scoreboard(newScoreboardForm.NumberOfTeams, newScoreboardForm.NumberOfCategories);
+
+                UpdateScores();
+                UpdateControls();
+
             }
-
-            scoreboard = new Scoreboard(newScoreboardForm.NumberOfTeams, newScoreboardForm.NumberOfCategories);
-
-            UpdateScores();
+            catch (Exception ex)
+            {
+                log.Error("Failed to create new scoreboard.", ex);
+                MessageBox.Show("Failed to create new scoreboard: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void MenuFileOpen_Click(object sender, EventArgs e)
         {
-            LoadFromFile();
+            try
+            {
+                LoadFromFile();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to open scoreboard.", ex);
+                MessageBox.Show("Failed to open scoreboard: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void MenuFileSave_Click(object sender, EventArgs e)
         {
-            SaveToFile();
+            try
+            {
+                SaveToFile();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to save scoreboard.", ex);
+                MessageBox.Show("Failed to save scoreboard: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void MenuFileClose_Click(object sender, EventArgs e)
+        {
+            // TODO: save
+            try
+            {
+                scoreboard = null;
+                UpdateScores();
+                UpdateControls();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to close scoreboard.", ex);
+                MessageBox.Show("Failed to close scoreboard: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void MenuEditAddTeam_Click(object sender, EventArgs e)
@@ -222,6 +293,7 @@ namespace PQScoreboard
             }
 
             UpdateScores();
+            UpdateControls();
         }
 
         private void MenuEditAddCategory_Click(object sender, EventArgs e)
@@ -252,17 +324,20 @@ namespace PQScoreboard
             }
 
             UpdateScores();
+            UpdateControls();
         }
 
         private void ButtonAnimate_Click(object sender, EventArgs e)
         {
-            ResultForm inputDialog = new ResultForm(scoreboard);
+            ResultForm inputDialog = new ResultForm();
 
             inputDialog.WindowState = FormWindowState.Normal;
             inputDialog.FormBorderStyle = FormBorderStyle.None;
             inputDialog.StartPosition = FormStartPosition.Manual;
             Screen screen = Screen.AllScreens.FirstOrDefault(s => s.DeviceName == ComboBoxScreen.SelectedItem.ToString());
             inputDialog.Bounds = (screen ?? Screen.PrimaryScreen).Bounds;
+
+            inputDialog.StartAnimation(scoreboard, false);
 
             if (inputDialog.ShowDialog() != DialogResult.OK)
             {
@@ -271,9 +346,9 @@ namespace PQScoreboard
             inputDialog.Dispose();
         }
 
-
-
         #endregion
+
+        #region interface view events
 
         private void DataGridViewScores_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
@@ -303,5 +378,7 @@ namespace PQScoreboard
                     scoreboard.GetTotalScore(team);
             }
         }
+
+        #endregion
     }
 }

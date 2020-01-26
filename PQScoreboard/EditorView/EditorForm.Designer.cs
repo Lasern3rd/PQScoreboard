@@ -33,14 +33,15 @@
             this.MenuStripMain = new System.Windows.Forms.MenuStrip();
             this.MenuFile = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileNew = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuFileOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuFileSave = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuFileExit = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuEditAddTeam = new System.Windows.Forms.ToolStripMenuItem();
             this.addCategoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ButtonClose = new System.Windows.Forms.Button();
             this.ComboBoxScreen = new System.Windows.Forms.ComboBox();
+            this.MenuFileClose = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewScores)).BeginInit();
             this.MenuStripMain.SuspendLayout();
             this.SuspendLayout();
@@ -83,9 +84,10 @@
             // 
             this.MenuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuFileNew,
-            this.openToolStripMenuItem,
-            this.saveToolStripMenuItem,
-            this.exitToolStripMenuItem});
+            this.MenuFileOpen,
+            this.MenuFileSave,
+            this.MenuFileClose,
+            this.MenuFileExit});
             this.MenuFile.Name = "MenuFile";
             this.MenuFile.Size = new System.Drawing.Size(37, 20);
             this.MenuFile.Text = "File";
@@ -93,29 +95,29 @@
             // MenuFileNew
             // 
             this.MenuFileNew.Name = "MenuFileNew";
-            this.MenuFileNew.Size = new System.Drawing.Size(103, 22);
+            this.MenuFileNew.Size = new System.Drawing.Size(180, 22);
             this.MenuFileNew.Text = "New";
             this.MenuFileNew.Click += new System.EventHandler(this.MenuFileNew_Click);
             // 
-            // openToolStripMenuItem
+            // MenuFileOpen
             // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.openToolStripMenuItem.Text = "Open";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.MenuFileOpen_Click);
+            this.MenuFileOpen.Name = "MenuFileOpen";
+            this.MenuFileOpen.Size = new System.Drawing.Size(180, 22);
+            this.MenuFileOpen.Text = "Open";
+            this.MenuFileOpen.Click += new System.EventHandler(this.MenuFileOpen_Click);
             // 
-            // saveToolStripMenuItem
+            // MenuFileSave
             // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.saveToolStripMenuItem.Text = "Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.MenuFileSave_Click);
+            this.MenuFileSave.Name = "MenuFileSave";
+            this.MenuFileSave.Size = new System.Drawing.Size(180, 22);
+            this.MenuFileSave.Text = "Save";
+            this.MenuFileSave.Click += new System.EventHandler(this.MenuFileSave_Click);
             // 
-            // exitToolStripMenuItem
+            // MenuFileExit
             // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
+            this.MenuFileExit.Name = "MenuFileExit";
+            this.MenuFileExit.Size = new System.Drawing.Size(180, 22);
+            this.MenuFileExit.Text = "Exit";
             // 
             // MenuEdit
             // 
@@ -129,14 +131,14 @@
             // MenuEditAddTeam
             // 
             this.MenuEditAddTeam.Name = "MenuEditAddTeam";
-            this.MenuEditAddTeam.Size = new System.Drawing.Size(147, 22);
+            this.MenuEditAddTeam.Size = new System.Drawing.Size(180, 22);
             this.MenuEditAddTeam.Text = "Add Team";
             this.MenuEditAddTeam.Click += new System.EventHandler(this.MenuEditAddTeam_Click);
             // 
             // addCategoryToolStripMenuItem
             // 
             this.addCategoryToolStripMenuItem.Name = "addCategoryToolStripMenuItem";
-            this.addCategoryToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.addCategoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addCategoryToolStripMenuItem.Text = "Add Category";
             this.addCategoryToolStripMenuItem.Click += new System.EventHandler(this.MenuEditAddCategory_Click);
             // 
@@ -160,6 +162,13 @@
             this.ComboBoxScreen.Name = "ComboBoxScreen";
             this.ComboBoxScreen.Size = new System.Drawing.Size(121, 23);
             this.ComboBoxScreen.TabIndex = 5;
+            // 
+            // MenuFileClose
+            // 
+            this.MenuFileClose.Name = "MenuFileClose";
+            this.MenuFileClose.Size = new System.Drawing.Size(180, 22);
+            this.MenuFileClose.Text = "Close";
+            this.MenuFileClose.Click += new System.EventHandler(this.MenuFileClose_Click);
             // 
             // EditorForm
             // 
@@ -188,14 +197,15 @@
         private System.Windows.Forms.MenuStrip MenuStripMain;
         private System.Windows.Forms.ToolStripMenuItem MenuFile;
         private System.Windows.Forms.ToolStripMenuItem MenuFileNew;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem MenuFileOpen;
+        private System.Windows.Forms.ToolStripMenuItem MenuFileSave;
+        private System.Windows.Forms.ToolStripMenuItem MenuFileExit;
         private System.Windows.Forms.ToolStripMenuItem MenuEdit;
         private System.Windows.Forms.ToolStripMenuItem MenuEditAddTeam;
         private System.Windows.Forms.ToolStripMenuItem addCategoryToolStripMenuItem;
         private System.Windows.Forms.Button ButtonClose;
         private System.Windows.Forms.ComboBox ComboBoxScreen;
+        private System.Windows.Forms.ToolStripMenuItem MenuFileClose;
     }
 }
 

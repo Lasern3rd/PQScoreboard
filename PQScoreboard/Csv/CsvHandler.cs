@@ -28,17 +28,17 @@ namespace PQScoreboard
                 {
                     throw new ArgumentException("invalid number of teams in cell (0,0)");
                 }
-                if (header.Length != numberOfTeams + 1)
+                if (header.Length > numberOfTeams + 1)
                 {
                     throw new ArgumentException("invalid number of columns in header.");
                 }
-                if (rows.Length != numberOfCategories)
+                if (rows.Length > numberOfCategories)
                 {
                     throw new ArgumentException("invalid number of rows.");
                 }
                 for (int i = rows.Length - 1; i >= 0; --i)
                 {
-                    if (rows[i].Length != numberOfTeams + 1)
+                    if (rows[i].Length > numberOfTeams + 1)
                     {
                         throw new ArgumentException("invalid number columns in row " + (i + 1) + ".");
                     }
@@ -50,10 +50,10 @@ namespace PQScoreboard
                 {
                     scoreboard.AddTeam(header[i]);
                 }
-                decimal[] scores = new decimal[numberOfTeams];
-                for (int i = 0; i < numberOfCategories; ++i)
+                decimal[] scores = new decimal[header.Length - 1];
+                for (int i = 0; i < rows.Length; ++i)
                 {
-                    for (int j = numberOfTeams - 1; j >= 0; --j)
+                    for (int j = header.Length - 2; j >= 0; --j)
                     {
                         if (!decimal.TryParse(rows[i][j + 1], NumberStyles.AllowDecimalPoint,
                             CultureInfo.InvariantCulture, out scores[j]))
