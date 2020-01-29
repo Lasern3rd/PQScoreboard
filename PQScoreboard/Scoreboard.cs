@@ -234,6 +234,22 @@ namespace PQScoreboard
             }
         }
 
+        public decimal[] TotalScores
+        {
+            get
+            {
+                decimal[] result = new decimal[currentTeam];
+                for (int i = currentTeam - 1; i >= 0; --i)
+                {
+                    for (int j = currentCategory - 1; j >= 0; --j)
+                    {
+                        result[i] += scores[i, j];
+                    }
+                }
+                return result;
+            }
+        }
+
         #endregion
     }
 }

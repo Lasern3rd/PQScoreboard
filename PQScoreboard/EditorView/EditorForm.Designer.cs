@@ -35,15 +35,20 @@
             this.MenuFileNew = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileSave = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuFileClose = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileExit = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuEditAddTeam = new System.Windows.Forms.ToolStripMenuItem();
             this.addCategoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ButtonClose = new System.Windows.Forms.Button();
             this.ComboBoxScreen = new System.Windows.Forms.ComboBox();
-            this.MenuFileClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.NumericInputAnimationLength = new System.Windows.Forms.NumericUpDown();
+            this.LabelDisplay = new System.Windows.Forms.Label();
+            this.LabelAnimationLength = new System.Windows.Forms.Label();
+            this.CheckBoxFireworks = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewScores)).BeginInit();
             this.MenuStripMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericInputAnimationLength)).BeginInit();
             this.SuspendLayout();
             // 
             // DataGridViewScores
@@ -95,29 +100,37 @@
             // MenuFileNew
             // 
             this.MenuFileNew.Name = "MenuFileNew";
-            this.MenuFileNew.Size = new System.Drawing.Size(180, 22);
+            this.MenuFileNew.Size = new System.Drawing.Size(103, 22);
             this.MenuFileNew.Text = "New";
             this.MenuFileNew.Click += new System.EventHandler(this.MenuFileNew_Click);
             // 
             // MenuFileOpen
             // 
             this.MenuFileOpen.Name = "MenuFileOpen";
-            this.MenuFileOpen.Size = new System.Drawing.Size(180, 22);
+            this.MenuFileOpen.Size = new System.Drawing.Size(103, 22);
             this.MenuFileOpen.Text = "Open";
             this.MenuFileOpen.Click += new System.EventHandler(this.MenuFileOpen_Click);
             // 
             // MenuFileSave
             // 
             this.MenuFileSave.Name = "MenuFileSave";
-            this.MenuFileSave.Size = new System.Drawing.Size(180, 22);
+            this.MenuFileSave.Size = new System.Drawing.Size(103, 22);
             this.MenuFileSave.Text = "Save";
             this.MenuFileSave.Click += new System.EventHandler(this.MenuFileSave_Click);
+            // 
+            // MenuFileClose
+            // 
+            this.MenuFileClose.Name = "MenuFileClose";
+            this.MenuFileClose.Size = new System.Drawing.Size(103, 22);
+            this.MenuFileClose.Text = "Close";
+            this.MenuFileClose.Click += new System.EventHandler(this.MenuFileClose_Click);
             // 
             // MenuFileExit
             // 
             this.MenuFileExit.Name = "MenuFileExit";
-            this.MenuFileExit.Size = new System.Drawing.Size(180, 22);
+            this.MenuFileExit.Size = new System.Drawing.Size(103, 22);
             this.MenuFileExit.Text = "Exit";
+            this.MenuFileExit.Click += new System.EventHandler(this.MenuFileExit_Click);
             // 
             // MenuEdit
             // 
@@ -131,14 +144,14 @@
             // MenuEditAddTeam
             // 
             this.MenuEditAddTeam.Name = "MenuEditAddTeam";
-            this.MenuEditAddTeam.Size = new System.Drawing.Size(180, 22);
+            this.MenuEditAddTeam.Size = new System.Drawing.Size(147, 22);
             this.MenuEditAddTeam.Text = "Add Team";
             this.MenuEditAddTeam.Click += new System.EventHandler(this.MenuEditAddTeam_Click);
             // 
             // addCategoryToolStripMenuItem
             // 
             this.addCategoryToolStripMenuItem.Name = "addCategoryToolStripMenuItem";
-            this.addCategoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addCategoryToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.addCategoryToolStripMenuItem.Text = "Add Category";
             this.addCategoryToolStripMenuItem.Click += new System.EventHandler(this.MenuEditAddCategory_Click);
             // 
@@ -163,18 +176,70 @@
             this.ComboBoxScreen.Size = new System.Drawing.Size(121, 23);
             this.ComboBoxScreen.TabIndex = 5;
             // 
-            // MenuFileClose
+            // NumericInputAnimationLength
             // 
-            this.MenuFileClose.Name = "MenuFileClose";
-            this.MenuFileClose.Size = new System.Drawing.Size(180, 22);
-            this.MenuFileClose.Text = "Close";
-            this.MenuFileClose.Click += new System.EventHandler(this.MenuFileClose_Click);
+            this.NumericInputAnimationLength.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.NumericInputAnimationLength.DecimalPlaces = 1;
+            this.NumericInputAnimationLength.Location = new System.Drawing.Point(436, 469);
+            this.NumericInputAnimationLength.Maximum = new decimal(new int[] {
+            6000,
+            0,
+            0,
+            65536});
+            this.NumericInputAnimationLength.Minimum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            65536});
+            this.NumericInputAnimationLength.Name = "NumericInputAnimationLength";
+            this.NumericInputAnimationLength.Size = new System.Drawing.Size(61, 20);
+            this.NumericInputAnimationLength.TabIndex = 6;
+            this.NumericInputAnimationLength.Value = new decimal(new int[] {
+            320,
+            0,
+            0,
+            65536});
+            // 
+            // LabelDisplay
+            // 
+            this.LabelDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.LabelDisplay.AutoSize = true;
+            this.LabelDisplay.Location = new System.Drawing.Point(599, 471);
+            this.LabelDisplay.Name = "LabelDisplay";
+            this.LabelDisplay.Size = new System.Drawing.Size(44, 13);
+            this.LabelDisplay.TabIndex = 7;
+            this.LabelDisplay.Text = "Display:";
+            // 
+            // LabelAnimationLength
+            // 
+            this.LabelAnimationLength.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.LabelAnimationLength.AutoSize = true;
+            this.LabelAnimationLength.Location = new System.Drawing.Point(338, 471);
+            this.LabelAnimationLength.Name = "LabelAnimationLength";
+            this.LabelAnimationLength.Size = new System.Drawing.Size(92, 13);
+            this.LabelAnimationLength.TabIndex = 8;
+            this.LabelAnimationLength.Text = "Animation Length:";
+            // 
+            // CheckBoxFireworks
+            // 
+            this.CheckBoxFireworks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.CheckBoxFireworks.AutoSize = true;
+            this.CheckBoxFireworks.Location = new System.Drawing.Point(512, 470);
+            this.CheckBoxFireworks.Name = "CheckBoxFireworks";
+            this.CheckBoxFireworks.Size = new System.Drawing.Size(71, 17);
+            this.CheckBoxFireworks.TabIndex = 10;
+            this.CheckBoxFireworks.Text = "Fireworks";
+            this.CheckBoxFireworks.UseVisualStyleBackColor = true;
             // 
             // EditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(944, 501);
+            this.Controls.Add(this.CheckBoxFireworks);
+            this.Controls.Add(this.LabelAnimationLength);
+            this.Controls.Add(this.LabelDisplay);
+            this.Controls.Add(this.NumericInputAnimationLength);
             this.Controls.Add(this.ComboBoxScreen);
             this.Controls.Add(this.ButtonClose);
             this.Controls.Add(this.ButtonAnimate);
@@ -185,6 +250,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewScores)).EndInit();
             this.MenuStripMain.ResumeLayout(false);
             this.MenuStripMain.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericInputAnimationLength)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -206,6 +272,10 @@
         private System.Windows.Forms.Button ButtonClose;
         private System.Windows.Forms.ComboBox ComboBoxScreen;
         private System.Windows.Forms.ToolStripMenuItem MenuFileClose;
+        private System.Windows.Forms.NumericUpDown NumericInputAnimationLength;
+        private System.Windows.Forms.Label LabelDisplay;
+        private System.Windows.Forms.Label LabelAnimationLength;
+        private System.Windows.Forms.CheckBox CheckBoxFireworks;
     }
 }
 

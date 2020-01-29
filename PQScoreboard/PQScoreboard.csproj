@@ -63,10 +63,6 @@
     </Compile>
     <Compile Include="Csv\CsvParser.cs" />
     <Compile Include="Csv\CsvHandler.cs" />
-    <Compile Include="Model\Graphics\IGraphicsObject.cs" />
-    <Compile Include="Model\Graphics\Score.cs" />
-    <Compile Include="Model\Graphics\Particle.cs" />
-    <Compile Include="Model\Column.cs" />
     <Compile Include="EditorView\NewScoreboardForm.cs">
       <SubType>Form</SubType>
     </Compile>

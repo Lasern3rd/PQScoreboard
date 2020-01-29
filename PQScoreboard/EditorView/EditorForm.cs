@@ -17,7 +17,7 @@ namespace PQScoreboard
 
         public EditorForm()
         {
-            log.Info("EditorForm::ctor {");
+            log.Debug("EditorForm::ctor {");
 
             InitializeComponent();
             DataGridViewScores.RowHeadersVisible = true;
@@ -37,7 +37,7 @@ namespace PQScoreboard
             UpdateControls();
             UpdateScores();
 
-            log.Info("EditorForm::ctor }");
+            log.Debug("EditorForm::ctor }");
         }
 
         #region private functions
@@ -147,7 +147,7 @@ namespace PQScoreboard
 
         private void LoadFromFile()
         {
-            log.Info("EditorForm::LoadFromFile() {");
+            log.Debug("EditorForm::LoadFromFile() {");
 
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -170,16 +170,16 @@ namespace PQScoreboard
                 }
             }
 
-            log.Info("EditorForm::LoadFromFile() }");
+            log.Debug("EditorForm::LoadFromFile() }");
         }
 
         private void SaveToFile()
         {
-            log.Info("EditorForm::SaveToFile() }");
+            log.Debug("EditorForm::SaveToFile() }");
 
             if (scoreboard == null)
             {
-                log.Info("EditorForm::SaveToFile() } // scoreboard == null");
+                log.Debug("EditorForm::SaveToFile() } // scoreboard == null");
                 return;
             }
 
@@ -206,7 +206,7 @@ namespace PQScoreboard
             }
             hasUnsavedChanges = false;
 
-            log.Info("EditorForm::SaveToFile() }");
+            log.Debug("EditorForm::SaveToFile() }");
         }
 
         #endregion
@@ -215,10 +215,39 @@ namespace PQScoreboard
 
         private void MenuFileNew_Click(object sender, EventArgs e)
         {
+            log.Debug("EditorForm::MenuFileNew_Click() {");
 
             if (hasUnsavedChanges)
             {
-                // TODO: save
+                try
+                {
+                    DialogResult result = MessageBox.Show("There are unsaved changes. Save?", "Information",
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+
+                    switch (result)
+                    {
+                        case DialogResult.Yes:
+                            SaveToFile();
+                            break;
+
+                        case DialogResult.No:
+                            break;
+
+                        default:
+                        case DialogResult.Cancel:
+                            log.Debug("EditorForm::MenuFileNew_Click() } // cancelled (save existing)");
+                            return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to create new scoreboard: Failed to save existing scoreboard.", ex);
+                    MessageBox.Show("Failed to create new scoreboard: Failed to save existing scoreboard: " + ex.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    log.Debug("EditorForm::MenuFileNew_Click() }");
+                    return;
+                }
             }
 
             try
@@ -228,6 +257,7 @@ namespace PQScoreboard
 
                 if (result != DialogResult.OK)
                 {
+                    log.Debug("EditorForm::MenuFileNew_Click() } // cancelled");
                     return;
                 }
 
@@ -244,13 +274,45 @@ namespace PQScoreboard
                 MessageBox.Show("Failed to create new scoreboard: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            log.Debug("EditorForm::MenuFileNew_Click() }");
         }
 
         private void MenuFileOpen_Click(object sender, EventArgs e)
         {
+            log.Debug("EditorForm::MenuFileOpen_Click() {");
+
             if (hasUnsavedChanges)
             {
-                // TODO
+                try
+                {
+                    DialogResult result = MessageBox.Show("There are unsaved changes. Save?", "Information",
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+
+                    switch (result)
+                    {
+                        case DialogResult.Yes:
+                            SaveToFile();
+                            break;
+
+                        case DialogResult.No:
+                            break;
+
+                        default:
+                        case DialogResult.Cancel:
+                            log.Debug("EditorForm::MenuFileOpen_Click() } // cancelled (save existing)");
+                            return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to open scoreboard: Failed to save existing scoreboard.", ex);
+                    MessageBox.Show("Failed to open scoreboard: Failed to save existing scoreboard: " + ex.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    log.Debug("EditorForm::MenuFileOpen_Click() }");
+                    return;
+                }
             }
 
             try
@@ -263,10 +325,14 @@ namespace PQScoreboard
                 MessageBox.Show("Failed to open scoreboard: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            log.Debug("EditorForm::MenuFileOpen_Click() }");
         }
 
         private void MenuFileSave_Click(object sender, EventArgs e)
         {
+            log.Debug("EditorForm::MenuFileSave_Click() {");
+
             try
             {
                 SaveToFile();
@@ -277,13 +343,42 @@ namespace PQScoreboard
                 MessageBox.Show("Failed to save scoreboard: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            log.Debug("EditorForm::MenuFileSave_Click() }");
         }
 
         private void MenuFileClose_Click(object sender, EventArgs e)
         {
+            log.Debug("EditorForm::MenuFileClose_Click() {");
+
             if (hasUnsavedChanges)
             {
-                // TODO: save
+                try
+                {
+                    DialogResult result = MessageBox.Show("There are unsaved changes. Save?", "Information",
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+
+                    switch (result)
+                    {
+                        case DialogResult.Yes:
+                            SaveToFile();
+                            break;
+
+                        case DialogResult.No:
+                            break;
+
+                        default:
+                        case DialogResult.Cancel:
+                            log.Debug("EditorForm::MenuFileClose_Click() } // cancelled (save existing)");
+                            return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to close scoreboard: Failed to save existing scoreboard.", ex);
+                    MessageBox.Show("Failed to close scoreboard: Failed to save existing scoreboard: " + ex.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
 
             try
@@ -299,15 +394,54 @@ namespace PQScoreboard
                 MessageBox.Show("Failed to close scoreboard: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            log.Debug("EditorForm::MenuFileClose_Click() }");
+        }
+
+        private void MenuFileExit_Click(object sender, EventArgs e)
+        {
+            log.Debug("EditorForm::MenuFileExit_Click() {");
+
+            if (hasUnsavedChanges)
+            {
+                try
+                {
+                    DialogResult result = MessageBox.Show("There are unsaved changes. Save?", "Information",
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+
+                    switch (result)
+                    {
+                        case DialogResult.Yes:
+                            SaveToFile();
+                            break;
+
+                        case DialogResult.No:
+                            break;
+
+                        default:
+                        case DialogResult.Cancel:
+                            log.Debug("EditorForm::MenuFileExit_Click() } // cancelled (save existing)");
+                            return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to close scoreboard: Failed to save existing scoreboard.", ex);
+                    MessageBox.Show("Failed to close scoreboard: Failed to save existing scoreboard: " + ex.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            log.Debug("EditorForm::MenuFileExit_Click() { // cancelled (save existing)");
         }
 
         private void MenuEditAddTeam_Click(object sender, EventArgs e)
         {
-            log.Info("EditorForm::MenuEditAddTeam_Click() {");
+            log.Debug("EditorForm::MenuEditAddTeam_Click() {");
 
             if (scoreboard == null)
             {
-                log.Info("EditorForm::MenuEditAddTeam_Click() } // scoreboard == null");
+                log.Debug("EditorForm::MenuEditAddTeam_Click() } // scoreboard == null");
                 return;
             }
 
@@ -316,6 +450,7 @@ namespace PQScoreboard
 
             if (result != DialogResult.OK)
             {
+                log.Debug("EditorForm::MenuEditAddTeam_Click() } // cancelled");
                 return;
             }
 
@@ -326,24 +461,27 @@ namespace PQScoreboard
             }
             catch (ArgumentException ex)
             {
+                log.Error("Failed add team.", ex);
                 MessageBox.Show("Failed to add team: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                log.Debug("EditorForm::MenuEditAddTeam_Click() }");
                 return;
             }
 
             UpdateScores();
             UpdateControls();
 
-            log.Info("EditorForm::MenuEditAddTeam_Click() }");
+            log.Debug("EditorForm::MenuEditAddTeam_Click() }");
         }
 
         private void MenuEditAddCategory_Click(object sender, EventArgs e)
         {
-            log.Info("EditorForm::MenuEditAddCategory_Click() {");
+            log.Debug("EditorForm::MenuEditAddCategory_Click() {");
 
             if (scoreboard == null)
             {
-                log.Info("EditorForm::MenuEditAddCategory_Click() } // scoreboard == null");
+                log.Debug("EditorForm::MenuEditAddCategory_Click() } // scoreboard == null");
                 return;
             }
 
@@ -352,6 +490,7 @@ namespace PQScoreboard
 
             if (result != DialogResult.OK)
             {
+                log.Debug("EditorForm::MenuEditAddCategory_Click() } // cancelled");
                 return;
             }
 
@@ -362,15 +501,18 @@ namespace PQScoreboard
             }
             catch (ArgumentException ex)
             {
+                log.Error("Failed add category.", ex);
                 MessageBox.Show("Failed to add category: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                log.Debug("EditorForm::MenuEditAddCategory_Click() }");
                 return;
             }
 
             UpdateScores();
             UpdateControls();
 
-            log.Info("EditorForm::MenuEditAddCategory_Click() }");
+            log.Debug("EditorForm::MenuEditAddCategory_Click() }");
         }
 
         private void ButtonAnimate_Click(object sender, EventArgs e)
@@ -378,31 +520,42 @@ namespace PQScoreboard
             // TODO create backup
             // TODO error handling
 
-            log.Info("EditorForm::ButtonAnimate_Click() {");
+            log.Debug("EditorForm::ButtonAnimate_Click() {");
 
             if (scoreboard == null)
             {
-                log.Info("EditorForm::ButtonAnimate_Click() } // scoreboard == null");
+                log.Debug("EditorForm::ButtonAnimate_Click() } // scoreboard == null");
                 return;
             }
 
-            ResultForm inputDialog = new ResultForm();
-
-            inputDialog.WindowState = FormWindowState.Normal;
-            inputDialog.FormBorderStyle = FormBorderStyle.None;
-            inputDialog.StartPosition = FormStartPosition.Manual;
-            Screen screen = Screen.AllScreens.FirstOrDefault(s => s.DeviceName == ComboBoxScreen.SelectedItem.ToString());
-            inputDialog.Bounds = (screen ?? Screen.PrimaryScreen).Bounds;
-
-            inputDialog.StartAnimation(scoreboard, false);
-
-            if (inputDialog.ShowDialog() != DialogResult.OK)
+            try
             {
+                ResultForm inputDialog = new ResultForm();
+
+                inputDialog.WindowState = FormWindowState.Normal;
+                inputDialog.FormBorderStyle = FormBorderStyle.None;
+                inputDialog.StartPosition = FormStartPosition.Manual;
+                Screen screen = Screen.AllScreens.FirstOrDefault(s => s.DeviceName == ComboBoxScreen.SelectedItem.ToString());
+                inputDialog.Bounds = (screen ?? Screen.PrimaryScreen).Bounds;
+
+                inputDialog.StartAnimation(scoreboard, (double)NumericInputAnimationLength.Value, CheckBoxFireworks.Checked);
+
+                if (inputDialog.ShowDialog() != DialogResult.OK)
+                {
+
+                }
+
+                inputDialog.Dispose();
+
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed show animated results.", ex);
+                MessageBox.Show("Failed show animated results: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            inputDialog.Dispose();
-
-            log.Info("EditorForm::ButtonAnimate_Click() }");
+            log.Debug("EditorForm::ButtonAnimate_Click() }");
         }
 
         #endregion
@@ -428,8 +581,7 @@ namespace PQScoreboard
                     + scoreboard.GetCategoryName(category) + "': '" + DataGridViewScores.Rows[category].Cells[team].Value.ToString()
                     + "' is not a valid score.";
 
-                log.Info("EditorForm::DataGridViewScores_CellValueChanged() } // " + errorText);
-
+                log.Error("EditorForm::DataGridViewScores_CellValueChanged() } // " + errorText);
                 MessageBox.Show(errorText, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }

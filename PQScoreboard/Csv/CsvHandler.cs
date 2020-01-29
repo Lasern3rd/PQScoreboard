@@ -82,7 +82,7 @@ namespace PQScoreboard
                 string[] categories = scoreboard.Categories;
                 decimal[,] scores = scoreboard.Scores;
 
-                writer.Write(categories.Length + "\\" + teams.Length);
+                writer.Write(scoreboard.ExpectedNumberOfCategories + "\\" + scoreboard.ExpectedNumberOfTeams);
 
                 foreach (string team in teams)
                 {

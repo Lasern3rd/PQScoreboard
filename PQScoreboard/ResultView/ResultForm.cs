@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define VISUALIZE_ANIMATION_SPEED
+
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -14,10 +16,8 @@ namespace PQScoreboard
         private const int backBufferWidth = 1920;
         private const int backBufferHeight = 1080;
 
-        private readonly double animationLength = 10000d;
         private readonly float fontSize = 24f;
 
-        // TODO: optimize, team name only has to be drawn once?
         // TODO: cleanup
 
         private Bitmap bitmap;
@@ -29,6 +29,7 @@ namespace PQScoreboard
         private Bitmap bitmapTotalScoreFrame;
         private Rectangle rectTotalScoreFrame;
 
+        private double animationLength;
         private bool enableFireworks;
 
         private string[] teams;
@@ -38,6 +39,8 @@ namespace PQScoreboard
         private Color[] colors;
         private Brush[] brushes;
         private RectangleF[] categoryNamesPos;
+        float[] animationSpeedSlowdownDomain;
+        float[] animationSpeedSlowdownImage;
 
         public ResultForm()
         {
@@ -60,41 +63,33 @@ namespace PQScoreboard
             Paint += Draw;
         }
 
-        public void StartAnimation(Scoreboard scoreboard, bool enableFireworks)
+        public void StartAnimation(Scoreboard scoreboard, double animationLength, bool enableFireworks)
         {
+            this.animationLength = animationLength * 1000d;
             this.enableFireworks = enableFireworks;
 
             teams = scoreboard.Teams;
             categories = scoreboard.Categories;
             scores = scoreboard.Scores;
 
-            maxScore = 0m;
+            decimal[] sortedTotalScores = scoreboard.TotalScores;
+            Array.Sort(sortedTotalScores);
+            maxScore = sortedTotalScores[sortedTotalScores.Length - 1];
 
-            int currentTotalScore = 0;
-            decimal[] totalScores = new decimal[teams.Length];
-            decimal score;
-            for (int i = teams.Length - 1; i >= 0; --i)
+            // devide total into points where "teams finish"
+            animationSpeedSlowdownDomain = new float[teams.Length + 1];
+            animationSpeedSlowdownDomain[0] = -0.01f;
+            animationSpeedSlowdownDomain[teams.Length] = 100.01f;
+            // get percentage of individual team scores w.r.t. to maxScore
+            animationSpeedSlowdownImage = new float[teams.Length + 1];
+            animationSpeedSlowdownImage[0] = 0f;
+            animationSpeedSlowdownImage[teams.Length] = 100f;
+            for (int i = 1; i < teams.Length; ++i)
             {
-                score = 0m;
-
-                for (int j = categories.Length - 1; j >= 0; --j)
-                {
-                    score += scores[i, j];
-                }
-
-                totalScores[currentTotalScore++] = score;
-
-                if (score > maxScore)
-                {
-                    maxScore = score;
-                }
+                animationSpeedSlowdownDomain[i] = i * (100f / teams.Length);
+                animationSpeedSlowdownImage[i] = (float)(sortedTotalScores[i + teams.Length - animationSpeedSlowdownDomain.Length] * 100m / maxScore);
             }
-
-            float[] animationSpeed = new float[teams.Length];
-            for (int i = teams.Length - 1; i >= 0; --i)
-            {
-                animationSpeed[i] = (float)(totalScores[i] * 100m / maxScore);
-            }
+            animationSpeedSlowdownDomain[teams.Length - 1] = 95f;
 
             int expectedNumberOfCategories = scoreboard.ExpectedNumberOfCategories;
             colors = new Color[expectedNumberOfCategories];
@@ -113,7 +108,11 @@ namespace PQScoreboard
                 categoryNamesPos[i] = new RectangleF(20f, 990f - (i + 1) * 900f / categories.Length, 260f, 900f / categories.Length);
             }
 
+#if VISUALIZE_ANIMATION_SPEED
+            RenderAnimationSpeed();
+#else
             (new Thread(new ThreadStart(RenderThreadLoop))).Start();
+#endif
         }
 
         private void Draw(object sender, PaintEventArgs e)
@@ -209,7 +208,7 @@ namespace PQScoreboard
             stopwatch.Start();
             double elapsed = 0d;
 
-            while (elapsed < animationLength)
+            while (true)
             {
                 if (stopwatch.Elapsed.TotalMilliseconds - elapsed >= 30)
                 {
@@ -217,19 +216,73 @@ namespace PQScoreboard
                     graphics.Clear(Color.Transparent);
 
                     float pct = (float)(elapsed * 100f / animationLength);
+                    float modifiedPct = CalculatedModifiedAnimationPct(pct);
 
-                    RenderScores(pct >= 100 ? 100 : pct);
+                    if (modifiedPct >= 100f)
+                    {
+                        RenderScores(100f);
+                        Invalidate();
+
+                        break;
+                    }
+
+                    RenderScores(modifiedPct);
                     Invalidate();
                 }
             }
         }
 
+        private float CalculatedModifiedAnimationPct(float pct)
+        {
+            if (pct > 100f)
+            {
+                return 100f;
+            }
+
+            int index = 0;
+            for (; index < animationSpeedSlowdownDomain.Length && pct > animationSpeedSlowdownDomain[index]; ++index) ;
+
+            float x = LinearTransform(pct, animationSpeedSlowdownDomain[index - 1], animationSpeedSlowdownDomain[index], 0, 100);
+            float y = (float)Math.Sqrt(x) * 10f;
+            return LinearTransform(y, 0, 100, animationSpeedSlowdownImage[index - 1], animationSpeedSlowdownImage[index]);
+        }
+
+        private float LinearTransform(float x, float da, float db, float ra, float rb)
+        {
+            return ra + (x - da) * (rb - ra) / (db - da);
+        }
+
         private Bitmap LoadBitmap(string filename, out Rectangle rect)
         {
             string path = Path.Combine(PathResources, filename);
-            Bitmap bmp =  (Bitmap)Image.FromFile(path);
+            Bitmap bmp = (Bitmap)Image.FromFile(path);
             rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
             return bmp;
         }
+
+        #region test
+
+#if VISUALIZE_ANIMATION_SPEED
+        
+        private void RenderAnimationSpeed()
+        {
+            int steps = 100;
+            float x, pct, prevX = 0f, prevPct = 0f;
+            for (int i = 0; i < steps; ++i)
+            {
+                x = i * 100f / steps;
+                pct = CalculatedModifiedAnimationPct(x);
+
+                graphics.DrawLine(pen, 100 + prevX * 10, 1000 - prevPct * 10, 100 + x * 10, 1000 - pct * 10);
+
+                prevX = x;
+                prevPct = pct;
+            }
+
+            Invalidate();
+        }
+#endif
+
+        #endregion
     }
 }
