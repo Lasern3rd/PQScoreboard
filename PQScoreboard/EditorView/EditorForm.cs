@@ -14,6 +14,7 @@ namespace PQScoreboard
 
         private Scoreboard scoreboard;
         private bool hasUnsavedChanges;
+        private ResultForm resultForm;
 
         public EditorForm()
         {
@@ -66,6 +67,11 @@ namespace PQScoreboard
 
         private void UpdateScores()
         {
+            // TODO: implement soft update
+
+            DataGridViewScores.Columns.Clear();
+            DataGridViewScores.Rows.Clear();
+
             if (scoreboard == null)
             {
                 DataGridViewScores.Enabled = false;
@@ -79,11 +85,6 @@ namespace PQScoreboard
                 DataGridViewScores.Enabled = false;
                 return;
             }
-
-            // TODO: implement soft update
-
-            DataGridViewScores.Columns.Clear();
-            DataGridViewScores.Rows.Clear();
 
             foreach (string team in teams)
             {
@@ -432,6 +433,8 @@ namespace PQScoreboard
                 }
             }
 
+            Close();
+
             log.Debug("EditorForm::MenuFileExit_Click() { // cancelled (save existing)");
         }
 
@@ -528,25 +531,23 @@ namespace PQScoreboard
                 return;
             }
 
+            if (resultForm != null)
+            {
+                resultForm.StopAnimationAndClose();
+            }
+
             try
             {
-                ResultForm inputDialog = new ResultForm();
-
-                inputDialog.WindowState = FormWindowState.Normal;
-                inputDialog.FormBorderStyle = FormBorderStyle.None;
-                inputDialog.StartPosition = FormStartPosition.Manual;
+                resultForm = new ResultForm();
+                resultForm.WindowState = FormWindowState.Normal;
+                resultForm.FormBorderStyle = FormBorderStyle.None;
+                resultForm.StartPosition = FormStartPosition.Manual;
                 Screen screen = Screen.AllScreens.FirstOrDefault(s => s.DeviceName == ComboBoxScreen.SelectedItem.ToString());
-                inputDialog.Bounds = (screen ?? Screen.PrimaryScreen).Bounds;
+                resultForm.Bounds = (screen ?? Screen.PrimaryScreen).Bounds;
 
-                inputDialog.StartAnimation(scoreboard, (double)NumericInputAnimationLength.Value, CheckBoxFireworks.Checked);
+                resultForm.StartAnimation(scoreboard, (double)NumericInputAnimationLength.Value, CheckBoxFireworks.Checked);
 
-                if (inputDialog.ShowDialog() != DialogResult.OK)
-                {
-
-                }
-
-                inputDialog.Dispose();
-
+                resultForm.Show();
             }
             catch (Exception ex)
             {
@@ -556,6 +557,11 @@ namespace PQScoreboard
             }
 
             log.Debug("EditorForm::ButtonAnimate_Click() }");
+        }
+
+        private void ButtonClose_Click(object sender, EventArgs e)
+        {
+            resultForm?.StopAnimationAndClose();
         }
 
         #endregion

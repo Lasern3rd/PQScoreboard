@@ -164,6 +164,7 @@
             this.ButtonClose.TabIndex = 4;
             this.ButtonClose.Text = "Close";
             this.ButtonClose.UseVisualStyleBackColor = true;
+            this.ButtonClose.Click += new System.EventHandler(this.ButtonClose_Click);
             // 
             // ComboBoxScreen
             // 

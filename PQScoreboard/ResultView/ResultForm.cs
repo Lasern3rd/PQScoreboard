@@ -27,10 +27,14 @@ namespace PQScoreboard
         private Font boldFont;
         private Pen pen;
         private Bitmap bitmapTotalScoreFrame;
+
         private Rectangle rectTotalScoreFrame;
 
         private double animationLength;
         private bool enableFireworks;
+
+        private bool isRunning;
+        private Thread renderThread;
 
         private string[] teams;
         private string[] categories;
@@ -63,8 +67,30 @@ namespace PQScoreboard
             Paint += Draw;
         }
 
+        public void StopAnimationAndClose()
+        {
+            isRunning = false;
+
+            if (renderThread != null)
+            {
+                renderThread.Join();
+            }
+
+            bitmap.Dispose();
+            graphics.Dispose();
+            stringFormat.Dispose();
+            font.Dispose();
+            boldFont.Dispose();
+            pen.Dispose();
+            bitmapTotalScoreFrame.Dispose();
+
+            Close();
+        }
+
         public void StartAnimation(Scoreboard scoreboard, double animationLength, bool enableFireworks)
         {
+            isRunning = true;
+
             this.animationLength = animationLength * 1000d;
             this.enableFireworks = enableFireworks;
 
@@ -111,7 +137,8 @@ namespace PQScoreboard
 #if VISUALIZE_ANIMATION_SPEED
             RenderAnimationSpeed();
 #else
-            (new Thread(new ThreadStart(RenderThreadLoop))).Start();
+            renderThread = new Thread(new ThreadStart(RenderThreadLoop));
+            renderThread.Start();
 #endif
         }
 
@@ -208,7 +235,7 @@ namespace PQScoreboard
             stopwatch.Start();
             double elapsed = 0d;
 
-            while (true)
+            while (isRunning)
             {
                 if (stopwatch.Elapsed.TotalMilliseconds - elapsed >= 30)
                 {
@@ -258,6 +285,16 @@ namespace PQScoreboard
             Bitmap bmp = (Bitmap)Image.FromFile(path);
             rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
             return bmp;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Escape)
+            {
+                StopAnimationAndClose();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         #region test

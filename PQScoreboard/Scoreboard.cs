@@ -5,9 +5,9 @@ namespace PQScoreboard
 {
     public class Scoreboard
     {
-        private readonly string[] teams;
-        private readonly string[] categories;
-        private readonly decimal[,] scores;
+        private string[] teams;
+        private string[] categories;
+        private decimal[,] scores;
 
         private int currentTeam;
         private int currentCategory;
@@ -22,6 +22,8 @@ namespace PQScoreboard
             currentCategory = 0;
         }
 
+        #region public methods
+
         public void AddTeam(string teamName)
         {
             if (string.IsNullOrWhiteSpace(teamName))
@@ -35,8 +37,9 @@ namespace PQScoreboard
 
             if (currentTeam >= teams.Length)
             {
-                // TODO
-                throw new NotImplementedException();
+                int newSize = Math.Max(currentTeam * 4 / 3, currentTeam + 3);
+                teams = Expand(teams, newSize);
+                scores = Expand(scores, newSize, categories.Length);
             }
 
             teams[currentTeam++] = teamName;
@@ -55,8 +58,9 @@ namespace PQScoreboard
 
             if (currentCategory >= categories.Length)
             {
-                // TODO
-                throw new NotImplementedException();
+                int newSize = Math.Max(currentCategory * 4 / 3, currentCategory + 3);
+                categories = Expand(categories, newSize);
+                scores = Expand(scores, teams.Length, newSize);
             }
 
             categories[currentCategory++] = categoryName;
@@ -78,8 +82,9 @@ namespace PQScoreboard
             }
             if (currentCategory >= categories.Length)
             {
-                // TODO
-                throw new NotImplementedException();
+                int newSize = Math.Max(currentCategory * 4 / 3, currentCategory + 3);
+                categories = Expand(categories, newSize);
+                this.scores = Expand(this.scores, teams.Length, newSize);
             }
 
             categories[currentCategory] = categoryName;
@@ -175,6 +180,7 @@ namespace PQScoreboard
             return totalScore;
         }
 
+        #endregion
 
         #region properties
 
@@ -248,6 +254,30 @@ namespace PQScoreboard
                 }
                 return result;
             }
+        }
+
+        #endregion
+
+        #region private methods
+
+        private string[] Expand(string[] array, int size)
+        {
+            string[] newArray = new string[size];
+            Array.Copy(array, 0, newArray, 0, array.Length);
+            return newArray;
+        }
+
+        private decimal[,] Expand(decimal[,] array, int size1, int size2)
+        {
+            decimal[,] newArray = new decimal[size1, size2];
+            for (int i = array.GetLength(0) - 1; i >= 0; --i)
+            {
+                for (int j = array.GetLength(1) - 1; j >= 0; --j)
+                {
+                    newArray[i, j] = array[i, j];
+                }
+            }
+            return newArray;
         }
 
         #endregion
