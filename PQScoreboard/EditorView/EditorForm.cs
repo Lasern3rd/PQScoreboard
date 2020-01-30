@@ -1,5 +1,6 @@
 ﻿using log4net;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace PQScoreboard
 {
     public partial class EditorForm : Form
     {
+        private const string backupFile = "backup.json";
         private static readonly ILog log = LogManager.GetLogger(typeof(EditorForm));
 
         private Scoreboard scoreboard;
@@ -164,6 +166,7 @@ namespace PQScoreboard
                         case ".csv":
                             scoreboard = CsvHandler.LoadFromFile(openFileDialog.OpenFile());
                             hasUnsavedChanges = false;
+                            NumericInputAnimationLength.Value = 3m + Math.Max(0, scoreboard.NumberOfCategories - 1) * 30m / scoreboard.ExpectedNumberOfCategories;
                             UpdateScores();
                             UpdateControls();
                             break;
@@ -208,6 +211,11 @@ namespace PQScoreboard
             hasUnsavedChanges = false;
 
             log.Debug("EditorForm::SaveToFile() }");
+        }
+
+        private void CreateBackup()
+        {
+
         }
 
         #endregion
@@ -264,6 +272,7 @@ namespace PQScoreboard
 
                 scoreboard = new Scoreboard(newScoreboardForm.NumberOfTeams, newScoreboardForm.NumberOfCategories);
                 hasUnsavedChanges = false;
+                NumericInputAnimationLength.Value = 3m;
 
                 UpdateScores();
                 UpdateControls();
@@ -512,6 +521,8 @@ namespace PQScoreboard
                 return;
             }
 
+            NumericInputAnimationLength.Value = 3m + Math.Max(0, scoreboard.NumberOfCategories - 1) * 30m / scoreboard.ExpectedNumberOfCategories;
+
             UpdateScores();
             UpdateControls();
 
@@ -529,6 +540,12 @@ namespace PQScoreboard
             {
                 log.Debug("EditorForm::ButtonAnimate_Click() } // scoreboard == null");
                 return;
+            }
+
+            using (StreamWriter file = File.CreateText(backupFile))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, scoreboard);
             }
 
             if (resultForm != null)

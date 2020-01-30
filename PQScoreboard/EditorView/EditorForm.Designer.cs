@@ -188,7 +188,7 @@
             0,
             65536});
             this.NumericInputAnimationLength.Minimum = new decimal(new int[] {
-            50,
+            30,
             0,
             0,
             65536});
@@ -196,10 +196,10 @@
             this.NumericInputAnimationLength.Size = new System.Drawing.Size(61, 20);
             this.NumericInputAnimationLength.TabIndex = 6;
             this.NumericInputAnimationLength.Value = new decimal(new int[] {
-            320,
+            3,
             0,
             0,
-            65536});
+            0});
             // 
             // LabelDisplay
             // 

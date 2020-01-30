@@ -200,6 +200,14 @@ namespace PQScoreboard
             }
         }
 
+        public int NumberOfTeams
+        {
+            get
+            {
+                return currentTeam;
+            }
+        }
+
         public string[] Teams
         {
             get
@@ -213,6 +221,14 @@ namespace PQScoreboard
             get
             {
                 return categories.Length;
+            }
+        }
+
+        public int NumberOfCategories
+        {
+            get
+            {
+                return currentCategory;
             }
         }
 

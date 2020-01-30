@@ -61,13 +61,20 @@ namespace PQScoreboard
             boldFont = new Font("Yu Gothic UI Light", fontSize, FontStyle.Bold);
             pen = new Pen(Color.Black, 1f);
 
-            bitmapTotalScoreFrame = LoadBitmap("TotalScoreFrame.png", out rectTotalScoreFrame);
+            bitmapTotalScoreFrame = Properties.Resources.TotalScoreFrame;
+            rectTotalScoreFrame = new Rectangle(0, 0, bitmapTotalScoreFrame.Width, bitmapTotalScoreFrame.Height);
 
             DoubleBuffered = true;
             Paint += Draw;
         }
 
         public void StopAnimationAndClose()
+        {
+            Cleanup();
+            Close();
+        }
+
+        private void Cleanup()
         {
             isRunning = false;
 
@@ -83,8 +90,6 @@ namespace PQScoreboard
             boldFont.Dispose();
             pen.Dispose();
             bitmapTotalScoreFrame.Dispose();
-
-            Close();
         }
 
         public void StartAnimation(Scoreboard scoreboard, double animationLength, bool enableFireworks)
@@ -278,14 +283,8 @@ namespace PQScoreboard
         {
             return ra + (x - da) * (rb - ra) / (db - da);
         }
-
-        private Bitmap LoadBitmap(string filename, out Rectangle rect)
-        {
-            string path = Path.Combine(PathResources, filename);
-            Bitmap bmp = (Bitmap)Image.FromFile(path);
-            rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-            return bmp;
-        }
+        
+        #region events
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -296,6 +295,13 @@ namespace PQScoreboard
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
+        private void ResultForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Cleanup();
+        }
+
+        #endregion
 
         #region test
 
@@ -321,5 +327,6 @@ namespace PQScoreboard
 #endif
 
         #endregion
+
     }
 }
