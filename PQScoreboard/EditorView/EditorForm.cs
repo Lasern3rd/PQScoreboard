@@ -177,15 +177,17 @@ namespace PQScoreboard
             log.Debug("EditorForm::LoadFromFile() }");
         }
 
-        private void SaveToFile()
+        private bool SaveToFile()
         {
-            log.Debug("EditorForm::SaveToFile() }");
+            log.Debug("EditorForm::SaveToFile() {");
 
             if (scoreboard == null)
             {
                 log.Debug("EditorForm::SaveToFile() } // scoreboard == null");
-                return;
+                return true;
             }
+
+            bool cancelled = false;
 
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
@@ -197,7 +199,6 @@ namespace PQScoreboard
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-
                     switch (Path.GetExtension(saveFileDialog.FileName))
                     {
                         default:
@@ -205,17 +206,55 @@ namespace PQScoreboard
                             CsvHandler.SaveToFile(scoreboard, saveFileDialog.OpenFile());
                             break;
                     }
-
+                    hasUnsavedChanges = false;
+                }
+                else
+                {
+                    cancelled = true;
                 }
             }
-            hasUnsavedChanges = false;
 
             log.Debug("EditorForm::SaveToFile() }");
+            return !cancelled;
         }
 
-        private void CreateBackup()
+        private bool PromptSaveDialogIfUnsavedChanged()
         {
+            log.Debug("EditorForm::PromptSaveDialogIfUnsavedChanged() {");
 
+            bool cancelled = false;
+            if (hasUnsavedChanges)
+            {
+                try
+                {
+                    DialogResult result = MessageBox.Show("There are unsaved changes. Save?", "Information",
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+
+                    switch (result)
+                    {
+                        case DialogResult.Yes:
+                            cancelled = !SaveToFile();
+                            break;
+
+                        case DialogResult.No:
+                            break;
+
+                        default:
+                        case DialogResult.Cancel:
+                            cancelled = true;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to close scoreboard: Failed to save existing scoreboard.", ex);
+                    MessageBox.Show("Failed to close scoreboard: Failed to save existing scoreboard: " + ex.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            log.Debug("EditorForm::PromptSaveDialogIfUnsavedChanged() }");
+            return cancelled;
         }
 
         #endregion
@@ -236,7 +275,11 @@ namespace PQScoreboard
                     switch (result)
                     {
                         case DialogResult.Yes:
-                            SaveToFile();
+                            if (!SaveToFile())
+                            {
+                                log.Debug("EditorForm::MenuFileNew_Click() } // cancelled (save existing)");
+                                return;
+                            }
                             break;
 
                         case DialogResult.No:
@@ -302,7 +345,10 @@ namespace PQScoreboard
                     switch (result)
                     {
                         case DialogResult.Yes:
-                            SaveToFile();
+                            if (!SaveToFile()) {
+                                log.Debug("EditorForm::MenuFileOpen_Click() } // cancelled (save existing)");
+                                return;
+                            }
                             break;
 
                         case DialogResult.No:
@@ -371,7 +417,11 @@ namespace PQScoreboard
                     switch (result)
                     {
                         case DialogResult.Yes:
-                            SaveToFile();
+                            if (!SaveToFile())
+                            {
+                                log.Debug("EditorForm::MenuFileClose_Click() } // cancelled (save existing)");
+                                return;
+                            }
                             break;
 
                         case DialogResult.No:
@@ -412,39 +462,27 @@ namespace PQScoreboard
         {
             log.Debug("EditorForm::MenuFileExit_Click() {");
 
-            if (hasUnsavedChanges)
+            if (PromptSaveDialogIfUnsavedChanged())
             {
-                try
-                {
-                    DialogResult result = MessageBox.Show("There are unsaved changes. Save?", "Information",
-                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
-
-                    switch (result)
-                    {
-                        case DialogResult.Yes:
-                            SaveToFile();
-                            break;
-
-                        case DialogResult.No:
-                            break;
-
-                        default:
-                        case DialogResult.Cancel:
-                            log.Debug("EditorForm::MenuFileExit_Click() } // cancelled (save existing)");
-                            return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Failed to close scoreboard: Failed to save existing scoreboard.", ex);
-                    MessageBox.Show("Failed to close scoreboard: Failed to save existing scoreboard: " + ex.Message, "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                log.Debug("EditorForm::MenuFileExit_Click() } // cancelled");
+                return;
             }
-
             Close();
 
-            log.Debug("EditorForm::MenuFileExit_Click() { // cancelled (save existing)");
+            log.Debug("EditorForm::MenuFileExit_Click() }");
+        }
+
+        private void EditorForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            log.Debug("EditorForm::EditorForm_FormClosed() {");
+
+            if (PromptSaveDialogIfUnsavedChanged())
+            {
+                e.Cancel = true;
+                log.Debug("EditorForm::EditorForm_FormClosed() } // cancelled");
+            }
+
+            log.Debug("EditorForm::EditorForm_FormClosed() }");
         }
 
         private void MenuEditAddTeam_Click(object sender, EventArgs e)

@@ -196,10 +196,10 @@
             this.NumericInputAnimationLength.Size = new System.Drawing.Size(61, 20);
             this.NumericInputAnimationLength.TabIndex = 6;
             this.NumericInputAnimationLength.Value = new decimal(new int[] {
-            3,
+            30,
             0,
             0,
-            0});
+            65536});
             // 
             // LabelDisplay
             // 
@@ -248,6 +248,7 @@
             this.Controls.Add(this.MenuStripMain);
             this.Name = "EditorForm";
             this.Text = "Editor";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorForm_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewScores)).EndInit();
             this.MenuStripMain.ResumeLayout(false);
             this.MenuStripMain.PerformLayout();
