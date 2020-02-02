@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -102,30 +103,35 @@ namespace PQScoreboard
         {
             isRunning = false;
 
-            if (renderThread != null)
+            renderThread?.Join();
+
+            renderTarget?.Dispose();
+            renderTargetGraphics?.Dispose();
+
+            renderTargetOverlay?.Dispose();
+            renderTargetGraphicsOverlay?.Dispose();
+
+            stringFormat?.Dispose();
+            fontCategoryNames?.Dispose();
+            fontTeamNames?.Dispose();
+            fontScores?.Dispose();
+            penGridLines?.Dispose();
+            brushTeamNames?.Dispose();
+            brushScores?.Dispose();
+
+            if (brushesFireworks != null)
             {
-                renderThread.Join();
+                foreach (Brush brush in brushesFireworks)
+                {
+                    brush?.Dispose();
+                }
             }
-
-            renderTarget.Dispose();
-            renderTargetGraphics.Dispose();
-
-            renderTargetOverlay.Dispose();
-            renderTargetGraphicsOverlay.Dispose();
-
-            stringFormat.Dispose();
-            fontCategoryNames.Dispose();
-            fontTeamNames.Dispose();
-            fontScores.Dispose();
-            penGridLines.Dispose();
-
-            foreach (Brush brush in brushesFireworks)
+            if (brushesCategories != null)
             {
-                brush.Dispose();
-            }
-            foreach (Brush brush in brushesCategories)
-            {
-                brush.Dispose();
+                foreach (Brush brush in brushesCategories)
+                {
+                    brush?.Dispose();
+                }
             }
         }
 
@@ -150,23 +156,27 @@ namespace PQScoreboard
 
             decimal[] sortedTotalScores = scoreboard.TotalScores;
             Array.Sort(sortedTotalScores);
-            // TODO: eliminate duplicates
+            bool maxScoreTie = sortedTotalScores.Length >= 2 && sortedTotalScores[sortedTotalScores.Length - 1] == sortedTotalScores[sortedTotalScores.Length - 2];
+            sortedTotalScores = sortedTotalScores.Distinct().ToArray();
             maxScore = sortedTotalScores[sortedTotalScores.Length - 1];
 
             // devide total into points where "teams finish"
-            animationSpeedSlowdownDomain = new float[teams.Length + 1];
+            animationSpeedSlowdownDomain = new float[sortedTotalScores.Length + 1];
             animationSpeedSlowdownDomain[0] = -0.01f;
-            animationSpeedSlowdownDomain[teams.Length] = 100.01f;
+            animationSpeedSlowdownDomain[sortedTotalScores.Length] = 100.01f;
             // get percentage of individual team scores w.r.t. to maxScore
-            animationSpeedSlowdownImage = new float[teams.Length + 1];
+            animationSpeedSlowdownImage = new float[sortedTotalScores.Length + 1];
             animationSpeedSlowdownImage[0] = 0f;
-            animationSpeedSlowdownImage[teams.Length] = 100f;
-            for (int i = 1; i < teams.Length; ++i)
+            animationSpeedSlowdownImage[sortedTotalScores.Length] = 100f;
+            for (int i = 1; i < sortedTotalScores.Length; ++i)
             {
-                animationSpeedSlowdownDomain[i] = i * (100f / teams.Length);
-                animationSpeedSlowdownImage[i] = (float)(sortedTotalScores[i + teams.Length - animationSpeedSlowdownDomain.Length] * 100m / maxScore);
+                animationSpeedSlowdownDomain[i] = i * (100f / sortedTotalScores.Length);
+                animationSpeedSlowdownImage[i] = (float)(sortedTotalScores[i + sortedTotalScores.Length - animationSpeedSlowdownDomain.Length] * 100m / maxScore);
             }
-            animationSpeedSlowdownDomain[teams.Length - 1] = 95f;
+            if (!maxScoreTie)
+            {
+                animationSpeedSlowdownDomain[sortedTotalScores.Length - 1] = 95f;
+            }
 
             int expectedNumberOfCategories = scoreboard.ExpectedNumberOfCategories;
             colorsCategories = new Color[expectedNumberOfCategories];
@@ -174,7 +184,7 @@ namespace PQScoreboard
             for (int i = expectedNumberOfCategories; i >= 0; --i)
             {
                 // TODO: beware of division by 0
-                colorsCategories[i] = Color.FromArgb(255, 150 - (i * 100 / (expectedNumberOfCategories)), 0);
+                colorsCategories[i] = Color.FromArgb(255, 150 - (i * 100 / expectedNumberOfCategories), 0);
                 brushesCategories[i] = new SolidBrush(colorsCategories[i]);
             }
 

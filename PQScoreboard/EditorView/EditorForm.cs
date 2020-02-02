@@ -571,6 +571,8 @@ namespace PQScoreboard
                 log.Error("Failed show animated results.", ex);
                 MessageBox.Show("Failed show animated results: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                resultForm.StopAnimationAndClose();
             }
 
             log.Debug("EditorForm::ButtonAnimate_Click() }");
