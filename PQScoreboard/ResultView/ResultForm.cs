@@ -1,9 +1,9 @@
 ﻿//#define VISUALIZE_ANIMATION_SPEED
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -11,67 +11,91 @@ namespace PQScoreboard
 {
     public partial class ResultForm : Form
     {
-        private const string PathResources = "Resources";
+        private const int BackBufferWidth = 1920;
+        private const int BackBufferHeight = 1080;
+        private const int ParticlesPerFirework = 32;
+        private const float FontSize = 24f;
 
-        private const int backBufferWidth = 1920;
-        private const int backBufferHeight = 1080;
+        private readonly Random rng;
 
-        private readonly float fontSize = 24f;
+        // rendering
 
-        // TODO: cleanup
+        private readonly Color colorBackground;
+        private readonly Bitmap renderTarget;
+        private readonly Graphics renderTargetGraphics;
 
-        private Bitmap bitmap;
-        private Graphics graphics;
-        private StringFormat stringFormat;
-        private Font font;
-        private Font boldFont;
-        private Pen pen;
-        private Bitmap bitmapTotalScoreFrame;
+        private readonly Bitmap renderTargetOverlay;
+        private readonly Graphics renderTargetGraphicsOverlay;
 
-        private Rectangle rectTotalScoreFrame;
+        private readonly StringFormat stringFormat;
+        private readonly Font fontCategoryNames;
+        private readonly Font fontTeamNames;
+        private readonly Font fontScores;
+        private readonly Pen penGridLines;
+        private readonly Brush brushTeamNames;
+        private readonly Brush brushScores;
+        private readonly Brush[] brushesFireworks;
+        private Color[] colorsCategories;
+        private Brush[] brushesCategories;
 
+        private readonly Bitmap bitmapTotalScoreFrame;
+        private readonly Rectangle rectTotalScoreFrame;
+
+        private Thread renderThread;
+        private bool isRunning;
         private double animationLength;
         private bool enableFireworks;
-
-        private bool isRunning;
-        private Thread renderThread;
 
         private string[] teams;
         private string[] categories;
         private decimal[,] scores;
+        private List<Firework> fireworks;
+
+        // precomputed
         private decimal maxScore;
-        private Color[] colors;
-        private Brush[] brushes;
         private RectangleF[] categoryNamesPos;
         float[] animationSpeedSlowdownDomain;
         float[] animationSpeedSlowdownImage;
 
-        public ResultForm()
+        #region ctor & cleanup
+
+        public ResultForm(bool darkMode)
         {
             InitializeComponent();
 
-            bitmap = new Bitmap(backBufferWidth, backBufferHeight);
-            graphics = Graphics.FromImage(bitmap);
-            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            rng = new Random();
+
+            colorBackground = darkMode ? Color.Black : Color.Transparent;
+
+            renderTarget = new Bitmap(BackBufferWidth, BackBufferHeight);
+            renderTargetGraphics = Graphics.FromImage(renderTarget);
+            renderTargetGraphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+
+            renderTargetOverlay = new Bitmap(BackBufferWidth, BackBufferHeight);
+            renderTargetGraphicsOverlay = Graphics.FromImage(renderTargetOverlay);
 
             stringFormat = new StringFormat();
             stringFormat.Alignment = StringAlignment.Center;
             stringFormat.LineAlignment = StringAlignment.Center;
-            font = new Font("Yu Gothic UI Light", fontSize, FontStyle.Regular);
-            boldFont = new Font("Yu Gothic UI Light", fontSize, FontStyle.Bold);
-            pen = new Pen(Color.Black, 1f);
+            fontCategoryNames = new Font("Yu Gothic UI Light", FontSize, FontStyle.Regular);
+            fontTeamNames = new Font("Yu Gothic UI Light", FontSize, FontStyle.Bold);
+            fontScores = new Font("Yu Gothic UI Light", FontSize, FontStyle.Bold);
+            penGridLines = new Pen(darkMode ? Color.White : Color.Black, 1f);
+            brushTeamNames = darkMode ? Brushes.White : Brushes.Black;
+            brushScores = Brushes.Black;
+            brushesFireworks = new Brush[] {
+                new SolidBrush(Color.FromArgb(35, 0, 128, 255)),
+                new SolidBrush(Color.FromArgb(35, 128, 0, 255)),
+                new SolidBrush(Color.FromArgb(35, 128, 255, 0))
+            };
 
             bitmapTotalScoreFrame = Properties.Resources.TotalScoreFrame;
             rectTotalScoreFrame = new Rectangle(0, 0, bitmapTotalScoreFrame.Width, bitmapTotalScoreFrame.Height);
 
             DoubleBuffered = true;
             Paint += Draw;
-        }
 
-        public void StopAnimationAndClose()
-        {
-            Cleanup();
-            Close();
+            fireworks = new List<Firework>();
         }
 
         private void Cleanup()
@@ -83,13 +107,34 @@ namespace PQScoreboard
                 renderThread.Join();
             }
 
-            bitmap.Dispose();
-            graphics.Dispose();
+            renderTarget.Dispose();
+            renderTargetGraphics.Dispose();
+
+            renderTargetOverlay.Dispose();
+            renderTargetGraphicsOverlay.Dispose();
+
             stringFormat.Dispose();
-            font.Dispose();
-            boldFont.Dispose();
-            pen.Dispose();
-            bitmapTotalScoreFrame.Dispose();
+            fontCategoryNames.Dispose();
+            fontTeamNames.Dispose();
+            fontScores.Dispose();
+            penGridLines.Dispose();
+
+            foreach (Brush brush in brushesFireworks)
+            {
+                brush.Dispose();
+            }
+            foreach (Brush brush in brushesCategories)
+            {
+                brush.Dispose();
+            }
+        }
+
+        #endregion
+
+        public void StopAnimationAndClose()
+        {
+            Cleanup();
+            Close();
         }
 
         public void StartAnimation(Scoreboard scoreboard, double animationLength, bool enableFireworks)
@@ -105,6 +150,7 @@ namespace PQScoreboard
 
             decimal[] sortedTotalScores = scoreboard.TotalScores;
             Array.Sort(sortedTotalScores);
+            // TODO: eliminate duplicates
             maxScore = sortedTotalScores[sortedTotalScores.Length - 1];
 
             // devide total into points where "teams finish"
@@ -123,13 +169,13 @@ namespace PQScoreboard
             animationSpeedSlowdownDomain[teams.Length - 1] = 95f;
 
             int expectedNumberOfCategories = scoreboard.ExpectedNumberOfCategories;
-            colors = new Color[expectedNumberOfCategories];
-            brushes = new Brush[expectedNumberOfCategories--];
+            colorsCategories = new Color[expectedNumberOfCategories];
+            brushesCategories = new Brush[expectedNumberOfCategories--];
             for (int i = expectedNumberOfCategories; i >= 0; --i)
             {
                 // TODO: beware of division by 0
-                colors[i] = Color.FromArgb(255, 150 - (i * 100 / (expectedNumberOfCategories)), 0);
-                brushes[i] = new SolidBrush(colors[i]);
+                colorsCategories[i] = Color.FromArgb(255, 150 - (i * 100 / (expectedNumberOfCategories)), 0);
+                brushesCategories[i] = new SolidBrush(colorsCategories[i]);
             }
 
             // category name rects
@@ -147,14 +193,23 @@ namespace PQScoreboard
 #endif
         }
 
+        #region rendering
+
         private void Draw(object sender, PaintEventArgs e)
         {
             var rect = e.Graphics.ClipBounds;
-            e.Graphics.DrawImage(bitmap, 0f, 0f, rect.Width, rect.Height);
+            e.Graphics.DrawImage(renderTarget, 0f, 0f, rect.Width, rect.Height);
+
+            if (enableFireworks && fireworks.Count > 0)
+            {
+                e.Graphics.DrawImage(renderTargetOverlay, 0f, 0f, rect.Width, rect.Height);
+            }
         }
 
         private void RenderScores(float animationPct)
         {
+            renderTargetGraphics.Clear(colorBackground);
+
             // score on topmost grid line = gridLines * 10
             int gridLines = decimal.ToInt32((maxScore / 10m)) + 1;
 
@@ -162,7 +217,7 @@ namespace PQScoreboard
             for (int i = gridLines; i >= 0; --i)
             {
                 float y = 90f + (i * 900f / gridLines);
-                graphics.DrawLine(pen, 300f, y, 1900f, y);
+                renderTargetGraphics.DrawLine(penGridLines, 300f, y, 1900f, y);
             }
 
             decimal maxScoreToDraw = new decimal(animationPct) * maxScore / 100m;
@@ -183,7 +238,7 @@ namespace PQScoreboard
                 // team name
                 float x = 300f + i * width;
                 RectangleF rect = new RectangleF(x, 980f, width, 80f);
-                graphics.DrawString(teams[i], boldFont, Brushes.Black, rect, stringFormat);
+                renderTargetGraphics.DrawString(teams[i], fontTeamNames, brushTeamNames, rect, stringFormat);
 
                 // score
                 maxScoreReached = false;
@@ -207,7 +262,7 @@ namespace PQScoreboard
                     }
 
                     newY = 990f - 900f * (float)accScores[i] / maxGridLineScore;
-                    graphics.FillRectangle(brushes[j], x + columnWidth, newY, columnWidth, previousY - newY);
+                    renderTargetGraphics.FillRectangle(brushesCategories[j], x + columnWidth, newY, columnWidth, previousY - newY);
 
                     previousY = newY;
 
@@ -220,18 +275,56 @@ namespace PQScoreboard
                 rect.Y = newY - 80f;
                 rect.X += columnWidth;
                 rect.Width -= 2 * columnWidth;
-                graphics.DrawImage(bitmapTotalScoreFrame, rect, rectTotalScoreFrame, GraphicsUnit.Pixel);
+                renderTargetGraphics.DrawImage(bitmapTotalScoreFrame, rect, rectTotalScoreFrame, GraphicsUnit.Pixel);
                 string score = maxScoreReached ? decimal.Round(accScores[i]).ToString("0") : accScores[i].ToString("0.#");
-                graphics.DrawString(score, boldFont, Brushes.Black, rect, stringFormat);
+                renderTargetGraphics.DrawString(score, fontScores, brushScores, rect, stringFormat);
             }
 
             // category names
             for (int i = categories.Length - 1; i >= 0; --i)
             {
                 float alpha = 255f * categoryProgress[i] / (teams.Length * 100f);
-                Brush b = new SolidBrush(Color.FromArgb((int)alpha, colors[i]));
-                graphics.DrawString(categories[i], font, b, categoryNamesPos[i], stringFormat);
+                using (Brush b = new SolidBrush(Color.FromArgb((int)alpha, colorsCategories[i])))
+                {
+                    renderTargetGraphics.DrawString(categories[i], fontCategoryNames, b, categoryNamesPos[i], stringFormat);
+                }
             }
+        }
+
+        private void RenderFireworks(double elapsed)
+        {
+            if (!enableFireworks || fireworks.Count == 0)
+            {
+                return;
+            }
+
+            renderTargetGraphicsOverlay.Clear(Color.Transparent);
+
+            double a, x, y, r, g;
+            foreach (Firework firework in fireworks)
+            {
+                // transform [0, MaxAge] -> [0, 17]
+                // use x^(1/5) from [0, 17] -> [0, 1.5]
+                // transform [0, 1.5] -> [0, Radius]
+                r = LinearTransformD(firework.Age += elapsed, 0d, firework.MaxAge, 0d, 17d);
+                r = Math.Pow(r, 1d / 5d);
+                r = (int)LinearTransformD(r, 0d, 1.5d, 0d, firework.Radius);
+                g = firework.GravityOff * firework.Age / firework.MaxAge;
+
+                for (int i = ParticlesPerFirework - 1; i >= 0; --i)
+                {
+                    a = 2d * i * Math.PI / ParticlesPerFirework;
+                    x = firework.CenterX + r * Math.Cos(a);
+                    y = firework.CenterY + r * Math.Sin(a) + g;
+
+                    for (float rr = 5f; rr > 0f; rr -= 0.5f)
+                    {
+                        renderTargetGraphicsOverlay.FillEllipse(brushesFireworks[firework.Brush], (float)x - rr, (float)y - rr, 2f * rr, 2f * rr);
+                    }
+                }
+            }
+
+            fireworks.RemoveAll(f => f.Age >= f.MaxAge);
         }
 
         private void RenderThreadLoop()
@@ -245,7 +338,6 @@ namespace PQScoreboard
                 if (stopwatch.Elapsed.TotalMilliseconds - elapsed >= 30)
                 {
                     elapsed = stopwatch.Elapsed.TotalMilliseconds;
-                    graphics.Clear(Color.Transparent);
 
                     float pct = (float)(elapsed * 100f / animationLength);
                     float modifiedPct = CalculatedModifiedAnimationPct(pct);
@@ -262,7 +354,31 @@ namespace PQScoreboard
                     Invalidate();
                 }
             }
+            if (enableFireworks)
+            {
+                double prev = stopwatch.Elapsed.TotalMilliseconds;
+                while (isRunning)
+                {
+                    if (fireworks.Count == 0)
+                    {
+                        // TODO: hardcoded -> config
+                        double radius = 75d + 100d * rng.NextDouble();
+                        fireworks.Add(new Firework(rng.Next(0, brushesFireworks.Length), 2000d + 2000d * rng.NextDouble(), radius, 7d + 15d * rng.NextDouble(),
+                            300d + 1320d * rng.NextDouble(), 20d + radius + 200d * rng.NextDouble()));
+                    }
+
+                    if ((elapsed = stopwatch.Elapsed.TotalMilliseconds - prev) >= 30)
+                    {
+                        prev = stopwatch.Elapsed.TotalMilliseconds;
+
+                        RenderFireworks(elapsed);
+                        Invalidate();
+                    }
+                }
+            }
         }
+
+        #endregion
 
         private float CalculatedModifiedAnimationPct(float pct)
         {
@@ -274,16 +390,21 @@ namespace PQScoreboard
             int index = 0;
             for (; index < animationSpeedSlowdownDomain.Length && pct > animationSpeedSlowdownDomain[index]; ++index) ;
 
-            float x = LinearTransform(pct, animationSpeedSlowdownDomain[index - 1], animationSpeedSlowdownDomain[index], 0, 100);
+            float x = LinearTransformF(pct, animationSpeedSlowdownDomain[index - 1], animationSpeedSlowdownDomain[index], 0, 100);
             float y = (float)Math.Sqrt(x) * 10f;
-            return LinearTransform(y, 0, 100, animationSpeedSlowdownImage[index - 1], animationSpeedSlowdownImage[index]);
+            return LinearTransformF(y, 0, 100, animationSpeedSlowdownImage[index - 1], animationSpeedSlowdownImage[index]);
         }
 
-        private float LinearTransform(float x, float da, float db, float ra, float rb)
+        private float LinearTransformF(float x, float da, float db, float ra, float rb)
         {
             return ra + (x - da) * (rb - ra) / (db - da);
         }
-        
+
+        private double LinearTransformD(double x, double da, double db, double ra, double rb)
+        {
+            return ra + (x - da) * (rb - ra) / (db - da);
+        }
+
         #region events
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)

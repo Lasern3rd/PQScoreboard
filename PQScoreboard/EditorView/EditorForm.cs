@@ -555,7 +555,7 @@ namespace PQScoreboard
 
             try
             {
-                resultForm = new ResultForm();
+                resultForm = new ResultForm(false);
                 resultForm.WindowState = FormWindowState.Normal;
                 resultForm.FormBorderStyle = FormBorderStyle.None;
                 resultForm.StartPosition = FormStartPosition.Manual;

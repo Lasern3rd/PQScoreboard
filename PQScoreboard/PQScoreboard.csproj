@@ -72,6 +72,7 @@
     <Compile Include="EditorView\NewScoreboardForm.Designer.cs">
       <DependentUpon>NewScoreboardForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ResultView\Firework.cs" />
     <Compile Include="ResultView\ResultForm.cs">
       <SubType>Form</SubType>
     </Compile>
