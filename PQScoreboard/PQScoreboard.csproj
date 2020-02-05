@@ -79,6 +79,7 @@
     <Compile Include="ResultView\ResultForm.Designer.cs">
       <DependentUpon>ResultForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ResultView\TripleBuffer.cs" />
     <Compile Include="Scoreboard.cs" />
     <Compile Include="EditorView\EditorForm.cs">
       <SubType>Form</SubType>

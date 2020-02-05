@@ -46,9 +46,13 @@
             this.LabelDisplay = new System.Windows.Forms.Label();
             this.LabelAnimationLength = new System.Windows.Forms.Label();
             this.CheckBoxFireworks = new System.Windows.Forms.CheckBox();
+            this.CheckBoxDarkMode = new System.Windows.Forms.CheckBox();
+            this.NumericInputNumberOfFireworks = new System.Windows.Forms.NumericUpDown();
+            this.LabelNumberOfFireworks = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewScores)).BeginInit();
             this.MenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericInputAnimationLength)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericInputNumberOfFireworks)).BeginInit();
             this.SuspendLayout();
             // 
             // DataGridViewScores
@@ -181,7 +185,7 @@
             // 
             this.NumericInputAnimationLength.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.NumericInputAnimationLength.DecimalPlaces = 1;
-            this.NumericInputAnimationLength.Location = new System.Drawing.Point(436, 469);
+            this.NumericInputAnimationLength.Location = new System.Drawing.Point(447, 469);
             this.NumericInputAnimationLength.Maximum = new decimal(new int[] {
             6000,
             0,
@@ -215,7 +219,7 @@
             // 
             this.LabelAnimationLength.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.LabelAnimationLength.AutoSize = true;
-            this.LabelAnimationLength.Location = new System.Drawing.Point(338, 471);
+            this.LabelAnimationLength.Location = new System.Drawing.Point(349, 472);
             this.LabelAnimationLength.Name = "LabelAnimationLength";
             this.LabelAnimationLength.Size = new System.Drawing.Size(92, 13);
             this.LabelAnimationLength.TabIndex = 8;
@@ -225,18 +229,60 @@
             // 
             this.CheckBoxFireworks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.CheckBoxFireworks.AutoSize = true;
-            this.CheckBoxFireworks.Location = new System.Drawing.Point(512, 470);
+            this.CheckBoxFireworks.Location = new System.Drawing.Point(118, 471);
             this.CheckBoxFireworks.Name = "CheckBoxFireworks";
             this.CheckBoxFireworks.Size = new System.Drawing.Size(71, 17);
             this.CheckBoxFireworks.TabIndex = 10;
             this.CheckBoxFireworks.Text = "Fireworks";
             this.CheckBoxFireworks.UseVisualStyleBackColor = true;
             // 
+            // CheckBoxDarkMode
+            // 
+            this.CheckBoxDarkMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.CheckBoxDarkMode.AutoSize = true;
+            this.CheckBoxDarkMode.Location = new System.Drawing.Point(514, 470);
+            this.CheckBoxDarkMode.Name = "CheckBoxDarkMode";
+            this.CheckBoxDarkMode.Size = new System.Drawing.Size(79, 17);
+            this.CheckBoxDarkMode.TabIndex = 11;
+            this.CheckBoxDarkMode.Text = "Dark Mode";
+            this.CheckBoxDarkMode.UseVisualStyleBackColor = true;
+            // 
+            // NumericInputNumberOfFireworks
+            // 
+            this.NumericInputNumberOfFireworks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.NumericInputNumberOfFireworks.Location = new System.Drawing.Point(308, 469);
+            this.NumericInputNumberOfFireworks.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.NumericInputNumberOfFireworks.Name = "NumericInputNumberOfFireworks";
+            this.NumericInputNumberOfFireworks.Size = new System.Drawing.Size(35, 20);
+            this.NumericInputNumberOfFireworks.TabIndex = 12;
+            this.NumericInputNumberOfFireworks.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            // 
+            // LabelNumberOfFireworks
+            // 
+            this.LabelNumberOfFireworks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.LabelNumberOfFireworks.AutoSize = true;
+            this.LabelNumberOfFireworks.Location = new System.Drawing.Point(195, 472);
+            this.LabelNumberOfFireworks.Name = "LabelNumberOfFireworks";
+            this.LabelNumberOfFireworks.Size = new System.Drawing.Size(107, 13);
+            this.LabelNumberOfFireworks.TabIndex = 13;
+            this.LabelNumberOfFireworks.Text = "Number of Fireworks:";
+            // 
             // EditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(944, 501);
+            this.Controls.Add(this.LabelNumberOfFireworks);
+            this.Controls.Add(this.NumericInputNumberOfFireworks);
+            this.Controls.Add(this.CheckBoxDarkMode);
             this.Controls.Add(this.CheckBoxFireworks);
             this.Controls.Add(this.LabelAnimationLength);
             this.Controls.Add(this.LabelDisplay);
@@ -253,6 +299,7 @@
             this.MenuStripMain.ResumeLayout(false);
             this.MenuStripMain.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericInputAnimationLength)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericInputNumberOfFireworks)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -278,6 +325,9 @@
         private System.Windows.Forms.Label LabelDisplay;
         private System.Windows.Forms.Label LabelAnimationLength;
         private System.Windows.Forms.CheckBox CheckBoxFireworks;
+        private System.Windows.Forms.CheckBox CheckBoxDarkMode;
+        private System.Windows.Forms.NumericUpDown NumericInputNumberOfFireworks;
+        private System.Windows.Forms.Label LabelNumberOfFireworks;
     }
 }
 

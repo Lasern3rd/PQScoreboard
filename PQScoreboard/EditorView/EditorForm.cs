@@ -569,9 +569,6 @@ namespace PQScoreboard
 
         private void ButtonAnimate_Click(object sender, EventArgs e)
         {
-            // TODO create backup
-            // TODO error handling
-
             log.Debug("EditorForm::ButtonAnimate_Click() {");
 
             if (scoreboard == null)
@@ -593,7 +590,7 @@ namespace PQScoreboard
 
             try
             {
-                resultForm = new ResultForm(false);
+                resultForm = new ResultForm(CheckBoxDarkMode.Checked, decimal.ToInt32(NumericInputNumberOfFireworks.Value));
                 resultForm.WindowState = FormWindowState.Normal;
                 resultForm.FormBorderStyle = FormBorderStyle.None;
                 resultForm.StartPosition = FormStartPosition.Manual;

@@ -38,7 +38,8 @@
             // 
             // ButtonOk
             // 
-            this.ButtonOk.Location = new System.Drawing.Point(315, 97);
+            this.ButtonOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ButtonOk.Location = new System.Drawing.Point(681, 163);
             this.ButtonOk.Name = "ButtonOk";
             this.ButtonOk.Size = new System.Drawing.Size(75, 23);
             this.ButtonOk.TabIndex = 2;
@@ -48,7 +49,8 @@
             // 
             // ButtonCancel
             // 
-            this.ButtonCancel.Location = new System.Drawing.Point(234, 97);
+            this.ButtonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ButtonCancel.Location = new System.Drawing.Point(600, 163);
             this.ButtonCancel.Name = "ButtonCancel";
             this.ButtonCancel.Size = new System.Drawing.Size(75, 23);
             this.ButtonCancel.TabIndex = 3;
@@ -75,17 +77,20 @@
             // 
             // DataGridViewScores
             // 
+            this.DataGridViewScores.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.DataGridViewScores.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.DataGridViewScores.Location = new System.Drawing.Point(12, 32);
             this.DataGridViewScores.Name = "DataGridViewScores";
-            this.DataGridViewScores.Size = new System.Drawing.Size(378, 59);
+            this.DataGridViewScores.Size = new System.Drawing.Size(744, 125);
             this.DataGridViewScores.TabIndex = 1;
             // 
             // AddCategoryForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(403, 126);
+            this.ClientSize = new System.Drawing.Size(769, 192);
             this.Controls.Add(this.DataGridViewScores);
             this.Controls.Add(this.TextboxCategoryName);
             this.Controls.Add(this.LabelCategoryName);
