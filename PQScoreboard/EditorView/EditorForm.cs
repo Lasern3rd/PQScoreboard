@@ -11,11 +11,12 @@ namespace PQScoreboard
 {
     public partial class EditorForm : Form
     {
-        private const string backupFile = "backup.json";
+        private const string backupFileName = "backup_";
         private static readonly ILog log = LogManager.GetLogger(typeof(EditorForm));
 
         private Scoreboard scoreboard;
         private bool hasUnsavedChanges;
+        private string fileName;
         private ResultForm resultForm;
 
         public EditorForm()
@@ -37,6 +38,7 @@ namespace PQScoreboard
 
             scoreboard = null;
             hasUnsavedChanges = false;
+            fileName = null;
             UpdateControls();
             UpdateScores();
 
@@ -154,23 +156,28 @@ namespace PQScoreboard
 
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                //openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.InitialDirectory = string.IsNullOrEmpty(fileName) ? Environment.SpecialFolder.MyDocuments.ToString() : fileName;
                 openFileDialog.Filter = "CSV files (*.csv)|*.csv|JSON files (*.json)|*.json";
                 openFileDialog.FilterIndex = 1;
                 openFileDialog.RestoreDirectory = true;
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    switch (Path.GetExtension(openFileDialog.FileName))
+                    fileName = openFileDialog.FileName;
+                    switch (Path.GetExtension(fileName))
                     {
                         case ".csv":
                             scoreboard = CsvHandler.LoadFromFile(openFileDialog.OpenFile());
-                            hasUnsavedChanges = false;
-                            NumericInputAnimationLength.Value = 3m + Math.Max(0, scoreboard.NumberOfCategories - 1) * 30m / scoreboard.ExpectedNumberOfCategories;
-                            UpdateScores();
-                            UpdateControls();
+                            break;
+
+                        case ".json":
+                            scoreboard = JsonHandler.LoadFromFile(openFileDialog.OpenFile());
                             break;
                     }
+                    hasUnsavedChanges = false;
+                    NumericInputAnimationLength.Value = GetSuggestedAnimationLength();
+                    UpdateScores();
+                    UpdateControls();
                 }
             }
 
@@ -199,11 +206,16 @@ namespace PQScoreboard
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    switch (Path.GetExtension(saveFileDialog.FileName))
+                    fileName = saveFileDialog.FileName;
+                    switch (Path.GetExtension(fileName))
                     {
                         default:
                         case ".csv":
                             CsvHandler.SaveToFile(scoreboard, saveFileDialog.OpenFile());
+                            break;
+
+                        case ".json":
+                            JsonHandler.SaveToFile(scoreboard, saveFileDialog.OpenFile());
                             break;
                     }
                     hasUnsavedChanges = false;
@@ -255,6 +267,30 @@ namespace PQScoreboard
 
             log.Debug("EditorForm::PromptSaveDialogIfUnsavedChanged() }");
             return cancelled;
+        }
+
+        private void SaveBackup()
+        {
+            try
+            {
+                using (StreamWriter file = File.CreateText(backupFileName + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + ".json"))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(file, scoreboard);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to save backup.", ex);
+            }
+        }
+
+        private decimal GetSuggestedAnimationLength()
+        {
+            // 'we are the champions' starts at 34 secs
+            // hence we want f(1) = 3, f(ExpectedNoCtg) = 34
+            decimal m = 31m / (scoreboard.ExpectedNumberOfCategories - 1m);
+            return Math.Max(3m, (scoreboard.NumberOfCategories - 1) * m + 3m);
         }
 
         #endregion
@@ -345,7 +381,8 @@ namespace PQScoreboard
                     switch (result)
                     {
                         case DialogResult.Yes:
-                            if (!SaveToFile()) {
+                            if (!SaveToFile())
+                            {
                                 log.Debug("EditorForm::MenuFileOpen_Click() } // cancelled (save existing)");
                                 return;
                             }
@@ -577,14 +614,11 @@ namespace PQScoreboard
                 return;
             }
 
-            using (StreamWriter file = File.CreateText(backupFile))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(file, scoreboard);
-            }
+            SaveBackup();
 
             if (resultForm != null)
             {
+                log.Debug("Closing previous result view.");
                 resultForm.StopAnimationAndClose();
             }
 

@@ -64,14 +64,15 @@
     <Compile Include="EditorView\AddTeamForm.Designer.cs">
       <DependentUpon>AddTeamForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Csv\CsvParser.cs" />
-    <Compile Include="Csv\CsvHandler.cs" />
+    <Compile Include="FileHandlers\Csv\CsvParser.cs" />
+    <Compile Include="FileHandlers\Csv\CsvHandler.cs" />
     <Compile Include="EditorView\NewScoreboardForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="EditorView\NewScoreboardForm.Designer.cs">
       <DependentUpon>NewScoreboardForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="FileHandlers\Json\JsonHandler.cs" />
     <Compile Include="ResultView\Firework.cs" />
     <Compile Include="ResultView\ResultForm.cs">
       <SubType>Form</SubType>

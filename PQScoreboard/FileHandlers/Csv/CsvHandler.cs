@@ -7,11 +7,13 @@ namespace PQScoreboard
 {
     public class CsvHandler
     {
-        // TODO: define exceptions
-
         public static Scoreboard LoadFromFile(Stream stream)
         {
-            // TODO add validation
+            if (stream == null)
+            {
+                throw new ArgumentException("Failed to load scoreboard from file: Argument 'stream' is null.");
+            }
+
             using (TextReader reader = new StreamReader(stream))
             {
                 string buffer = reader.ReadToEnd();
@@ -20,31 +22,33 @@ namespace PQScoreboard
 
                 string[] dimens = header[0].Split('\\');
 
-                if (!int.TryParse(dimens[0], out int numberOfCategories))
+                if (!int.TryParse(dimens[0], out int expectedNumberOfCategories))
                 {
-                    throw new ArgumentException("invalid number of categories in cell (0,0)");
+                    throw new ArgumentException("Failed to load scoreboard fom file: Invalid number of categories in cell (0,0).");
                 }
-                if (!int.TryParse(dimens[1], out int numberOfTeams))
+                if (!int.TryParse(dimens[1], out int expectedNumberOfTeams))
                 {
-                    throw new ArgumentException("invalid number of teams in cell (0,0)");
+                    throw new ArgumentException("Failed to load scoreboard fom file: Invalid number of teams in cell (0,0).");
                 }
-                if (header.Length > numberOfTeams + 1)
+                // first column contains category names
+                if (header.Length > expectedNumberOfTeams + 1)
                 {
-                    throw new ArgumentException("invalid number of columns in header.");
+                    throw new ArgumentException("Failed to load scoreboard fom file: Invalid number of columns in header.");
                 }
-                if (rows.Length > numberOfCategories)
+                // header (row containing team names) is separate
+                if (rows.Length > expectedNumberOfCategories)
                 {
-                    throw new ArgumentException("invalid number of rows.");
+                    throw new ArgumentException("Failed to load scoreboard fom file: Invalid number of rows.");
                 }
                 for (int i = rows.Length - 1; i >= 0; --i)
                 {
-                    if (rows[i].Length > numberOfTeams + 1)
+                    if (rows[i].Length != header.Length)
                     {
-                        throw new ArgumentException("invalid number columns in row " + (i + 1) + ".");
+                        throw new ArgumentException("Failed to load scoreboard fom file: Invalid number columns in row " + (i + 1) + ".");
                     }
                 }
 
-                Scoreboard scoreboard = new Scoreboard(numberOfTeams, numberOfCategories);
+                Scoreboard scoreboard = new Scoreboard(expectedNumberOfTeams, expectedNumberOfCategories);
 
                 for (int i = 1; i < header.Length; ++i)
                 {
@@ -58,7 +62,7 @@ namespace PQScoreboard
                         if (!decimal.TryParse(rows[i][j + 1], NumberStyles.AllowDecimalPoint,
                             CultureInfo.InvariantCulture, out scores[j]))
                         {
-                            throw new ArgumentException("invalid score for team '" + header[j + 1]
+                            throw new ArgumentException("Failed to load scoreboard fom file: Invalid score for team '" + header[j + 1]
                                 + "' at category '" + rows[i][0] + "'.");
                         }
                     }
@@ -71,13 +75,17 @@ namespace PQScoreboard
 
         public static void SaveToFile(Scoreboard scoreboard, Stream stream)
         {
+            if (stream == null)
+            {
+                throw new ArgumentException("Failed to save scoreboard to file: Argument 'stream' is null.");
+            }
+            if (scoreboard == null)
+            {
+                throw new ArgumentException("Failed to save scoreboard to file: Argument 'scoreboard' is null.");
+            }
+
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                if (scoreboard == null)
-                {
-                    return;
-                }
-
                 string[] teams = scoreboard.Teams;
                 string[] categories = scoreboard.Categories;
                 decimal[,] scores = scoreboard.Scores;

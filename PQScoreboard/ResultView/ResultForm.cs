@@ -138,6 +138,9 @@ namespace PQScoreboard
 
         public void StartAnimation(Scoreboard scoreboard, double animationLength, bool enableFireworks)
         {
+            // precompute some values
+            // and start render-thread/draw-loop
+
             isRunning = true;
             keepRendering = true;
 
