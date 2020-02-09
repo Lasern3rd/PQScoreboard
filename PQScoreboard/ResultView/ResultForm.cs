@@ -16,6 +16,38 @@ namespace PQScoreboard
         private const int BackBufferHeight = 1080;
         private const int ParticlesPerFirework = 32;
         private const float FontSize = 24f;
+        // divide into 4 regions:
+        // table
+        // category names
+        // team names
+        // dead region
+        private const float dividerCategoryNames2Table = 0.15f * BackBufferWidth;
+        private const float dividerTeamNames2Table = 0.85f * BackBufferHeight;
+        private const float marginInner = 5f;
+        private const float marginOuter = 10f;
+
+        private const float categoryNamesLeft = marginOuter;
+        private const float categoryNamesTop = marginOuter;
+        private const float categoryNamesRight = dividerCategoryNames2Table - marginInner;
+        private const float categoryNamesBottom = dividerTeamNames2Table - marginInner;
+        private const float categoryNamesHeight = categoryNamesBottom - categoryNamesTop;
+        private const float categoryNamesWidth = categoryNamesRight - categoryNamesLeft;
+
+        private const float tableTotalScoresHeight = 50f;
+        private const float tableTotalScoresWidth = 100f;
+        private const float tableLeft = dividerCategoryNames2Table + marginInner;
+        private const float tableTop = tableTotalScoresHeight + marginOuter;
+        private const float tableRight = BackBufferWidth - marginOuter;
+        private const float tableBottom = dividerTeamNames2Table - marginInner;
+        private const float tableHeight = tableBottom - tableTop;
+        private const float tableWidth = tableRight - tableLeft;
+
+        private const float teamNamesLeft = dividerCategoryNames2Table + marginInner;
+        private const float teamNamesTop = dividerTeamNames2Table + marginInner;
+        private const float teamNamesRight = BackBufferWidth - marginOuter;
+        private const float teamNamesBottom = BackBufferHeight - marginOuter;
+        private const float teamNamesHeight = teamNamesBottom - teamNamesTop;
+
 
         private readonly Random rng;
 
@@ -147,9 +179,20 @@ namespace PQScoreboard
             this.animationLength = animationLength * 1000d;
             this.enableFireworks = enableFireworks;
 
+            if (scoreboard == null)
+            {
+                throw new ArgumentException("Failed to show results: Argument 'scoreboard' is null.");
+            }
+
             teams = scoreboard.Teams;
             categories = scoreboard.Categories;
             scores = scoreboard.Scores;
+            int expectedNumberOfCategories = scoreboard.ExpectedNumberOfCategories;
+
+            if (teams == null || teams.Length == 0 || categories == null || categories.Length == 0 || expectedNumberOfCategories == 0)
+            {
+                throw new ArgumentException("Failed to show results: Invalid scoreboard.");
+            }
 
             decimal[] sortedTotalScores = scoreboard.TotalScores;
             Array.Sort(sortedTotalScores);
@@ -175,21 +218,24 @@ namespace PQScoreboard
                 animationSpeedSlowdownDomain[sortedTotalScores.Length - 1] = 95f;
             }
 
-            int expectedNumberOfCategories = scoreboard.ExpectedNumberOfCategories;
             colorsCategories = new Color[expectedNumberOfCategories];
             brushesCategories = new Brush[expectedNumberOfCategories--];
             for (int i = expectedNumberOfCategories; i >= 0; --i)
             {
-                // TODO: beware of division by 0
                 colorsCategories[i] = Color.FromArgb(255, 150 - (i * 100 / expectedNumberOfCategories), 0);
                 brushesCategories[i] = new SolidBrush(colorsCategories[i]);
             }
 
             // category name rects
             categoryNamesPos = new RectangleF[categories.Length];
+            float height = categoryNamesHeight / categories.Length;
             for (int i = 0; i < categories.Length; ++i)
             {
-                categoryNamesPos[i] = new RectangleF(20f, 990f - (i + 1) * 900f / categories.Length, 260f, 900f / categories.Length);
+                categoryNamesPos[i] = new RectangleF(
+                    categoryNamesLeft,
+                    categoryNamesBottom - (i + 1) * height,
+                    categoryNamesWidth,
+                    height);
             }
 
 #if VISUALIZE_ANIMATION_SPEED
@@ -215,7 +261,6 @@ namespace PQScoreboard
                     {
                         return;
                     }
-                    Thread.Sleep(30);
                 }
 
                 var rect = e.Graphics.ClipBounds;
@@ -237,7 +282,6 @@ namespace PQScoreboard
 
             if (isRunning && keepRendering)
             {
-                //Thread.Sleep(30);
                 Invalidate();
             }
         }
@@ -252,8 +296,8 @@ namespace PQScoreboard
             // grid
             for (int i = gridLines; i >= 0; --i)
             {
-                float y = 20f + (i * 900f / gridLines);
-                renderTargetGraphics.DrawLine(penGridLines, 300f, y, 1900f, y);
+                float y = tableTop + (i * tableHeight / gridLines);
+                renderTargetGraphics.DrawLine(penGridLines, tableLeft, y, tableRight, y);
             }
 
             decimal maxScoreToDraw = new decimal(animationPct) * maxScore / 100m;
@@ -261,7 +305,7 @@ namespace PQScoreboard
             float maxGridLineScore = gridLines * 10f;
             decimal[] accScores = new decimal[teams.Length];
 
-            float width = 1600f / teams.Length;
+            float width = tableWidth / teams.Length;
             float previousY, newY = 0f;
             bool maxScoreReached;
             float columnWidth = width / 3f;
@@ -272,13 +316,13 @@ namespace PQScoreboard
                 accScores[i] = 0m;
 
                 // team name
-                float x = 300f + i * width;
-                RectangleF rect = new RectangleF(x, 980f, width, 80f);
+                float x = tableLeft + i * width;
+                RectangleF rect = new RectangleF(x, teamNamesTop, width, teamNamesHeight);
                 renderTargetGraphics.DrawString(teams[i], fontTeamNames, brushTeamNames, rect, stringFormat);
 
                 // score
                 maxScoreReached = false;
-                previousY = 920f;
+                previousY = tableBottom;
 
                 for (int j = 0; j < categories.Length; ++j)
                 {
@@ -297,7 +341,7 @@ namespace PQScoreboard
                         categoryProgress[j] += 100f;
                     }
 
-                    newY = 920f - 900f * (float)accScores[i] / maxGridLineScore;
+                    newY = tableBottom - tableHeight * (float)accScores[i] / maxGridLineScore;
                     renderTargetGraphics.FillRectangle(brushesCategories[j], x + columnWidth, newY, columnWidth, previousY - newY);
 
                     previousY = newY;
@@ -308,9 +352,10 @@ namespace PQScoreboard
                     }
                 }
 
-                rect.Y = newY - 80f;
-                rect.X += columnWidth;
-                rect.Width -= 2 * columnWidth;
+                rect.X += (width - tableTotalScoresWidth) / 2f;
+                rect.Width = tableTotalScoresWidth;
+                rect.Y = newY - tableTotalScoresHeight;
+                rect.Height = tableTotalScoresHeight;
                 renderTargetGraphics.DrawImage(bitmapTotalScoreFrame, rect, rectTotalScoreFrame, GraphicsUnit.Pixel);
                 string score = maxScoreReached ? decimal.Round(accScores[i]).ToString("0") : accScores[i].ToString("0.#");
                 renderTargetGraphics.DrawString(score, fontScores, brushScores, rect, stringFormat);
@@ -334,7 +379,7 @@ namespace PQScoreboard
                 return;
             }
 
-            renderTargetGraphics.Clear(colorBackground);
+            renderTargetGraphics.Clear(Color.Transparent);
 
             double a, x, y, r, g;
             foreach (Firework firework in fireworks)
