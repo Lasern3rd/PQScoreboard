@@ -215,7 +215,7 @@ namespace PQScoreboard
             }
             if (!maxScoreTie)
             {
-                animationSpeedSlowdownDomain[sortedTotalScores.Length - 1] = 95f;
+                animationSpeedSlowdownDomain[sortedTotalScores.Length - 1] = 98f;
             }
 
             colorsCategories = new Color[expectedNumberOfCategories];
