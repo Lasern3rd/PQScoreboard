@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddCategoryForm));
             this.ButtonOk = new System.Windows.Forms.Button();
             this.ButtonCancel = new System.Windows.Forms.Button();
             this.LabelCategoryName = new System.Windows.Forms.Label();
@@ -96,6 +97,7 @@
             this.Controls.Add(this.LabelCategoryName);
             this.Controls.Add(this.ButtonCancel);
             this.Controls.Add(this.ButtonOk);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AddCategoryForm";
             this.Text = "Add Category";
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewScores)).EndInit();

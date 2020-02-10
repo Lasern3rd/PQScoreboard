@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewScoreboardForm));
             this.ButtonOk = new System.Windows.Forms.Button();
             this.LabelNumberOfCategories = new System.Windows.Forms.Label();
             this.LabelNumberOfTeams = new System.Windows.Forms.Label();
@@ -128,6 +129,7 @@
             this.Controls.Add(this.LabelNumberOfCategories);
             this.Controls.Add(this.ButtonOk);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "NewScoreboardForm";
             this.ShowIcon = false;

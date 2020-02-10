@@ -1,4 +1,5 @@
 ﻿using log4net.Config;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,6 +19,7 @@ namespace PQScoreboard
         [STAThread]
         static void Main()
         {
+            // load logging config
             try
             {
                 using (Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.log4net)))
@@ -28,6 +30,19 @@ namespace PQScoreboard
             catch (Exception)
             {
                 // ignore for now
+            }
+
+            // load program config
+            try
+            {
+                using (StreamReader reader = new StreamReader("config.json"))
+                {
+                    Config.Values = JsonConvert.DeserializeObject<Config>(reader.ReadToEnd());
+                }
+            }
+            catch (Exception)
+            {
+                Config.Values = new Config();
             }
 
             Application.EnableVisualStyles();

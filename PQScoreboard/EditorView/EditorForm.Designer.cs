@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditorForm));
             this.DataGridViewScores = new System.Windows.Forms.DataGridView();
             this.ButtonAnimate = new System.Windows.Forms.Button();
             this.MenuStripMain = new System.Windows.Forms.MenuStrip();
@@ -292,6 +293,7 @@
             this.Controls.Add(this.ButtonAnimate);
             this.Controls.Add(this.DataGridViewScores);
             this.Controls.Add(this.MenuStripMain);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "EditorForm";
             this.Text = "Editor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorForm_FormClosing);

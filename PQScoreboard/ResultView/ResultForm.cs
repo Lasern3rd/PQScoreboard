@@ -105,8 +105,8 @@ namespace PQScoreboard
             stringFormat = new StringFormat();
             stringFormat.Alignment = StringAlignment.Center;
             stringFormat.LineAlignment = StringAlignment.Center;
-            fontCategoryNames = new Font("Yu Gothic UI Light", FontSize, FontStyle.Bold);
-            fontTeamNames = new Font("Yu Gothic UI Light", FontSize, FontStyle.Bold);
+            fontCategoryNames = new Font(Config.Values.FontCategoryNames, FontSize, FontStyle.Bold);
+            fontTeamNames = new Font(Config.Values.FontTeamNames, FontSize, FontStyle.Bold);
             fontScores = new Font("Yu Gothic UI Light", FontSize, FontStyle.Bold);
             penGridLines = new Pen(darkMode ? Color.White : Color.Black, 1f);
             brushTeamNames = new SolidBrush(darkMode ? Color.White : Color.Black);
