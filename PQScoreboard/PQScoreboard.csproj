@@ -67,6 +67,12 @@
     <Compile Include="EditorView\AddTeamForm.Designer.cs">
       <DependentUpon>AddTeamForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditorView\ModifyTeamForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditorView\ModifyTeamForm.Designer.cs">
+      <DependentUpon>ModifyTeamForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="FileHandlers\Csv\CsvParser.cs" />
     <Compile Include="FileHandlers\Csv\CsvHandler.cs" />
     <Compile Include="EditorView\NewScoreboardForm.cs">
@@ -102,6 +108,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditorView\EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditorView\ModifyTeamForm.resx">
+      <DependentUpon>ModifyTeamForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditorView\NewScoreboardForm.resx">
       <DependentUpon>NewScoreboardForm.cs</DependentUpon>

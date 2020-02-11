@@ -45,6 +45,44 @@ namespace PQScoreboard
             teams[currentTeam++] = teamName;
         }
 
+        public void RenameTeam(int team, string teamName)
+        {
+            if (team < 0 || team >= currentTeam)
+            {
+                throw new ArgumentException("Unknown team id " + team + ".");
+            }
+            if (string.IsNullOrWhiteSpace(teamName))
+            {
+                throw new ArgumentException("Invalid team name.");
+            }
+            if (teams.Contains(teamName))
+            {
+                throw new ArgumentException("Team with name '" + teamName + "' already exists.");
+            }
+
+            teams[team] = teamName;
+        }
+
+        public void RemoveTeam(int team)
+        {
+            if (team < 0 || team >= currentTeam)
+            {
+                throw new ArgumentException("Unknown team id " + team + ".");
+            }
+            
+            --currentTeam;
+
+            for (int i = team; i < currentTeam; ++i)
+            {
+                teams[i] = teams[i + 1];
+
+                for (int j = currentCategory - 1; j >= 0; --j)
+                {
+                    scores[i, j] = scores[i + 1, j];
+                }
+            }
+        }
+
         public void AddCategory(string categoryName)
         {
             if (string.IsNullOrWhiteSpace(categoryName))

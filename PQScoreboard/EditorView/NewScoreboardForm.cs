@@ -30,6 +30,8 @@ namespace PQScoreboard
 
         #endregion
 
+        #region interface actions
+
         private void ButtonOk_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
@@ -41,5 +43,7 @@ namespace PQScoreboard
             DialogResult = DialogResult.Cancel;
             Close();
         }
+
+        #endregion
     }
 }

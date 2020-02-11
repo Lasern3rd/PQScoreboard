@@ -34,13 +34,14 @@
             this.MenuStripMain = new System.Windows.Forms.MenuStrip();
             this.MenuFile = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileNew = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuFileNewFromTemplate = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileSave = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileClose = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuFileExit = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuEditAddTeam = new System.Windows.Forms.ToolStripMenuItem();
-            this.addCategoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuEditAddCategory = new System.Windows.Forms.ToolStripMenuItem();
             this.ButtonClose = new System.Windows.Forms.Button();
             this.ComboBoxScreen = new System.Windows.Forms.ComboBox();
             this.NumericInputAnimationLength = new System.Windows.Forms.NumericUpDown();
@@ -66,6 +67,7 @@
             this.DataGridViewScores.Name = "DataGridViewScores";
             this.DataGridViewScores.Size = new System.Drawing.Size(920, 433);
             this.DataGridViewScores.TabIndex = 1;
+            this.DataGridViewScores.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewScores_CellDoubleClick);
             this.DataGridViewScores.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewScores_CellValueChanged);
             // 
             // ButtonAnimate
@@ -94,6 +96,7 @@
             // 
             this.MenuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuFileNew,
+            this.MenuFileNewFromTemplate,
             this.MenuFileOpen,
             this.MenuFileSave,
             this.MenuFileClose,
@@ -105,35 +108,42 @@
             // MenuFileNew
             // 
             this.MenuFileNew.Name = "MenuFileNew";
-            this.MenuFileNew.Size = new System.Drawing.Size(103, 22);
+            this.MenuFileNew.Size = new System.Drawing.Size(178, 22);
             this.MenuFileNew.Text = "New";
             this.MenuFileNew.Click += new System.EventHandler(this.MenuFileNew_Click);
+            // 
+            // MenuFileNewFromTemplate
+            // 
+            this.MenuFileNewFromTemplate.Name = "MenuFileNewFromTemplate";
+            this.MenuFileNewFromTemplate.Size = new System.Drawing.Size(178, 22);
+            this.MenuFileNewFromTemplate.Text = "New from Template";
+            this.MenuFileNewFromTemplate.Click += new System.EventHandler(this.MenuFileNewFromTemplate_Click);
             // 
             // MenuFileOpen
             // 
             this.MenuFileOpen.Name = "MenuFileOpen";
-            this.MenuFileOpen.Size = new System.Drawing.Size(103, 22);
+            this.MenuFileOpen.Size = new System.Drawing.Size(178, 22);
             this.MenuFileOpen.Text = "Open";
             this.MenuFileOpen.Click += new System.EventHandler(this.MenuFileOpen_Click);
             // 
             // MenuFileSave
             // 
             this.MenuFileSave.Name = "MenuFileSave";
-            this.MenuFileSave.Size = new System.Drawing.Size(103, 22);
+            this.MenuFileSave.Size = new System.Drawing.Size(178, 22);
             this.MenuFileSave.Text = "Save";
             this.MenuFileSave.Click += new System.EventHandler(this.MenuFileSave_Click);
             // 
             // MenuFileClose
             // 
             this.MenuFileClose.Name = "MenuFileClose";
-            this.MenuFileClose.Size = new System.Drawing.Size(103, 22);
+            this.MenuFileClose.Size = new System.Drawing.Size(178, 22);
             this.MenuFileClose.Text = "Close";
             this.MenuFileClose.Click += new System.EventHandler(this.MenuFileClose_Click);
             // 
             // MenuFileExit
             // 
             this.MenuFileExit.Name = "MenuFileExit";
-            this.MenuFileExit.Size = new System.Drawing.Size(103, 22);
+            this.MenuFileExit.Size = new System.Drawing.Size(178, 22);
             this.MenuFileExit.Text = "Exit";
             this.MenuFileExit.Click += new System.EventHandler(this.MenuFileExit_Click);
             // 
@@ -141,7 +151,7 @@
             // 
             this.MenuEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuEditAddTeam,
-            this.addCategoryToolStripMenuItem});
+            this.MenuEditAddCategory});
             this.MenuEdit.Name = "MenuEdit";
             this.MenuEdit.Size = new System.Drawing.Size(39, 20);
             this.MenuEdit.Text = "Edit";
@@ -153,12 +163,12 @@
             this.MenuEditAddTeam.Text = "Add Team";
             this.MenuEditAddTeam.Click += new System.EventHandler(this.MenuEditAddTeam_Click);
             // 
-            // addCategoryToolStripMenuItem
+            // MenuEditAddCategory
             // 
-            this.addCategoryToolStripMenuItem.Name = "addCategoryToolStripMenuItem";
-            this.addCategoryToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
-            this.addCategoryToolStripMenuItem.Text = "Add Category";
-            this.addCategoryToolStripMenuItem.Click += new System.EventHandler(this.MenuEditAddCategory_Click);
+            this.MenuEditAddCategory.Name = "MenuEditAddCategory";
+            this.MenuEditAddCategory.Size = new System.Drawing.Size(147, 22);
+            this.MenuEditAddCategory.Text = "Add Category";
+            this.MenuEditAddCategory.Click += new System.EventHandler(this.MenuEditAddCategory_Click);
             // 
             // ButtonClose
             // 
@@ -319,7 +329,7 @@
         private System.Windows.Forms.ToolStripMenuItem MenuFileExit;
         private System.Windows.Forms.ToolStripMenuItem MenuEdit;
         private System.Windows.Forms.ToolStripMenuItem MenuEditAddTeam;
-        private System.Windows.Forms.ToolStripMenuItem addCategoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem MenuEditAddCategory;
         private System.Windows.Forms.Button ButtonClose;
         private System.Windows.Forms.ComboBox ComboBoxScreen;
         private System.Windows.Forms.ToolStripMenuItem MenuFileClose;
@@ -330,6 +340,7 @@
         private System.Windows.Forms.CheckBox CheckBoxDarkMode;
         private System.Windows.Forms.NumericUpDown NumericInputNumberOfFireworks;
         private System.Windows.Forms.Label LabelNumberOfFireworks;
+        private System.Windows.Forms.ToolStripMenuItem MenuFileNewFromTemplate;
     }
 }
 

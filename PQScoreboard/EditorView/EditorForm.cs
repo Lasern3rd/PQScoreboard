@@ -90,6 +90,8 @@ namespace PQScoreboard
                 return;
             }
 
+            DataGridViewScores.Enabled = true;
+
             foreach (string team in teams)
             {
                 DataGridViewScores.Columns.Add(team, team);
@@ -100,7 +102,6 @@ namespace PQScoreboard
             string[] categories = scoreboard.Categories;
             if (categories.Length == 0)
             {
-                DataGridViewScores.Enabled = false;
                 return;
             }
 
@@ -129,8 +130,6 @@ namespace PQScoreboard
 
                 DataGridViewScores.Rows[categories.Length].Cells[i].Value = totalScore;
             }
-
-            DataGridViewScores.Enabled = true;
         }
 
         private void UpdateControls()
@@ -173,6 +172,9 @@ namespace PQScoreboard
                         case ".json":
                             scoreboard = JsonHandler.LoadFromFile(openFileDialog.OpenFile());
                             break;
+
+                        default:
+                            throw new ArgumentException("Unknown file format: '" + Path.GetExtension(fileName) + "'.");
                     }
                     hasUnsavedChanges = false;
                     NumericInputAnimationLength.Value = GetSuggestedAnimationLength();
@@ -267,6 +269,65 @@ namespace PQScoreboard
 
             log.Debug("EditorForm::PromptSaveDialogIfUnsavedChanged() }");
             return cancelled;
+        }
+
+        private void ModifyTeam(int team)
+        {
+            log.Debug("EditorForm::ModifyTeam() {");
+
+            try
+            {
+                string teamName = scoreboard.GetTeamName(team);
+
+                ModifyTeamForm modifyTeamForm = new ModifyTeamForm(teamName);
+                DialogResult result = modifyTeamForm.ShowDialog(this);
+
+                if (result != DialogResult.OK)
+                {
+                    log.Debug("EditorForm::ModifyTeam() } // cancelled");
+                    return;
+                }
+
+                switch (modifyTeamForm.Result)
+                {
+                    case ModifyTeamForm.ModifyTeamResult.Rename:
+                        string newTeamName = modifyTeamForm.TeamName;
+                        if (string.Equals(teamName, newTeamName))
+                        {
+                            log.Debug("EditorForm::ModifyTeam() } // new team name == old team name");
+                            return;
+                        }
+                        scoreboard.RenameTeam(team, modifyTeamForm.TeamName);
+                        hasUnsavedChanges = true;
+                        UpdateScores();
+                        UpdateControls();
+                        break;
+
+                    case ModifyTeamForm.ModifyTeamResult.Remove:
+                        if (DialogResult.Yes != MessageBox.Show("Really remove team '" + teamName + "'?", "Information",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Information))
+                        {
+                            log.Debug("EditorForm::ModifyTeam() } // cancelled remove team");
+                            return;
+                        }
+                        scoreboard.RemoveTeam(team);
+                        hasUnsavedChanges = true;
+                        UpdateScores();
+                        UpdateControls();
+                        break;
+
+                    default:
+                        throw new NotImplementedException("Not implemented.");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to modify team.", ex);
+                MessageBox.Show("Failed to modify team: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            log.Debug("EditorForm::ModifyTeam() }");
         }
 
         private void SaveBackup()
@@ -420,6 +481,97 @@ namespace PQScoreboard
             }
 
             log.Debug("EditorForm::MenuFileOpen_Click() }");
+        }
+
+        private void MenuFileNewFromTemplate_Click(object sender, EventArgs e)
+        {
+            log.Debug("EditorForm::MenuFileNewFromTemplate_Click() {");
+
+            if (hasUnsavedChanges)
+            {
+                try
+                {
+                    DialogResult result = MessageBox.Show("There are unsaved changes. Save?", "Information",
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+
+                    switch (result)
+                    {
+                        case DialogResult.Yes:
+                            if (!SaveToFile())
+                            {
+                                log.Debug("EditorForm::MenuFileNewFromTemplate_Click() } // cancelled (save existing)");
+                                return;
+                            }
+                            break;
+
+                        case DialogResult.No:
+                            break;
+
+                        default:
+                        case DialogResult.Cancel:
+                            log.Debug("EditorForm::MenuFileNewFromTemplate_Click() } // cancelled (save existing)");
+                            return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to import template: Failed to save existing scoreboard.", ex);
+                    MessageBox.Show("Failed to import template: Failed to save existing scoreboard: " + ex.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    log.Debug("EditorForm::MenuFileNewFromTemplate_Click() }");
+                    return;
+                }
+            }
+
+            try
+            {
+                using (OpenFileDialog openFileDialog = new OpenFileDialog())
+                {
+                    openFileDialog.InitialDirectory = string.IsNullOrEmpty(fileName) ? Environment.SpecialFolder.MyDocuments.ToString() : fileName;
+                    openFileDialog.Filter = "CSV files (*.csv)|*.csv|JSON files (*.json)|*.json";
+                    openFileDialog.FilterIndex = 1;
+                    openFileDialog.RestoreDirectory = true;
+
+                    Scoreboard template;
+
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        fileName = openFileDialog.FileName;
+                        switch (Path.GetExtension(fileName))
+                        {
+                            case ".csv":
+                                template = CsvHandler.LoadFromFile(openFileDialog.OpenFile());
+                                break;
+
+                            case ".json":
+                                template = JsonHandler.LoadFromFile(openFileDialog.OpenFile());
+                                break;
+
+                            default:
+                                throw new ArgumentException("Unknown file format: '" + Path.GetExtension(fileName) + "'.");
+                        }
+                        hasUnsavedChanges = false;
+
+                        scoreboard = new Scoreboard(template.ExpectedNumberOfTeams, template.ExpectedNumberOfCategories);
+                        foreach (string team in template.Teams)
+                        {
+                            scoreboard.AddTeam(team);
+                        }
+                        NumericInputAnimationLength.Value = GetSuggestedAnimationLength();
+                        UpdateScores();
+                        UpdateControls();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to import template.", ex);
+                MessageBox.Show("Failed to import template: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            log.Debug("EditorForm::MenuFileNewFromTemplate_Click() }");
         }
 
         private void MenuFileSave_Click(object sender, EventArgs e)
@@ -688,6 +840,17 @@ namespace PQScoreboard
                 DataGridViewScores.Rows[DataGridViewScores.Rows.Count - 1].Cells[team].Value =
                     scoreboard.GetTotalScore(team);
             }
+        }
+
+        private void DataGridViewScores_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // only handle clicks on header
+            if (e.RowIndex != -1 || e.ColumnIndex < 0)
+            {
+                return;
+            }
+
+            ModifyTeam(e.ColumnIndex);
         }
 
         #endregion
