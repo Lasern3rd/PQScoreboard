@@ -42,12 +42,16 @@ namespace PQScoreboard
         private const float tableHeight = tableBottom - tableTop;
         private const float tableWidth = tableRight - tableLeft;
 
-        private const float teamNamesLeft = dividerCategoryNames2Table + marginInner;
         private const float teamNamesTop = dividerTeamNames2Table + marginInner;
-        private const float teamNamesRight = BackBufferWidth - marginOuter;
         private const float teamNamesBottom = BackBufferHeight - marginOuter;
         private const float teamNamesHeight = teamNamesBottom - teamNamesTop;
 
+        private const float fireworksTop = marginOuter;
+        private const float fireworksLeft = 100f;
+        private const float fireworksRight = BackBufferWidth - 100f;
+        private const float fireworksBottom = BackBufferHeight - 150f;
+        private const float fireworksWidth = fireworksRight - fireworksLeft;
+        private const float fireworksHeight = fireworksBottom - fireworksTop;
 
         private readonly Random rng;
 
@@ -76,12 +80,14 @@ namespace PQScoreboard
         private bool keepRendering;
         private double animationLength;
         private bool enableFireworks;
-        private int numberOfFireworks; // -> config
+        private readonly int numberOfFireworks;
+        private readonly double fireworksRadiusMin;
+        private readonly double fireworksRadiusScale;
 
         private string[] teams;
         private string[] categories;
         private decimal[,] scores;
-        private List<Firework> fireworks;
+        private readonly List<Firework> fireworks;
 
         // precomputed
         private decimal maxScore;
@@ -120,6 +126,9 @@ namespace PQScoreboard
             bitmapTotalScoreFrame = Properties.Resources.TotalScoreFrame;
             rectTotalScoreFrame = new Rectangle(0, 0, bitmapTotalScoreFrame.Width, bitmapTotalScoreFrame.Height);
             bitmapScores = null;
+
+            fireworksRadiusMin = Config.Values.FireworksRadiusMin;
+            fireworksRadiusScale = Config.Values.FireworksRadiusScale;
 
             DoubleBuffered = true;
             Paint += Draw;
@@ -522,10 +531,10 @@ namespace PQScoreboard
 
         private double CreateFirework(double time)
         {
-            double radius = 75d + 100d * rng.NextDouble();
+            double radius = fireworksRadiusMin + fireworksRadiusScale * rng.NextDouble();
             double maxAge = 2000d + 2000d * rng.NextDouble();
             fireworks.Add(new Firework(rng.Next(0, brushesFireworks.Length), maxAge, radius, 7d + 15d * rng.NextDouble(),
-                300d + 1320d * rng.NextDouble(), 20d + radius + 200d * rng.NextDouble()));
+                fireworksLeft + radius + (fireworksWidth -  2 * radius) * rng.NextDouble(), fireworksTop + radius + (fireworksHeight - 2 * radius) * rng.NextDouble()));
 
             return time + maxAge + rng.NextDouble() * 2500d;
         }

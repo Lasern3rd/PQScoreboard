@@ -19,6 +19,9 @@ namespace PQScoreboard
         [STAThread]
         static void Main()
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             // load logging config
             try
             {
@@ -39,14 +42,15 @@ namespace PQScoreboard
                 {
                     Config.Values = JsonConvert.DeserializeObject<Config>(reader.ReadToEnd());
                 }
+                Config.Values.Validate();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 Config.Values = new Config();
+                MessageBox.Show("Failed to load config: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new EditorForm());
         }
     }
