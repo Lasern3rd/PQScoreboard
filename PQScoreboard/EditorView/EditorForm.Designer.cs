@@ -263,7 +263,7 @@
             this.NumericInputNumberOfFireworks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.NumericInputNumberOfFireworks.Location = new System.Drawing.Point(308, 469);
             this.NumericInputNumberOfFireworks.Maximum = new decimal(new int[] {
-            10,
+            20,
             0,
             0,
             0});

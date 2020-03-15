@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace PQScoreboard
@@ -280,6 +279,7 @@ namespace PQScoreboard
                 string teamName = scoreboard.GetTeamName(team);
 
                 ModifyTeamForm modifyTeamForm = new ModifyTeamForm(teamName);
+                modifyTeamForm.StartPosition = FormStartPosition.CenterParent;
                 DialogResult result = modifyTeamForm.ShowDialog(this);
 
                 if (result != DialogResult.OK)
@@ -402,6 +402,7 @@ namespace PQScoreboard
             try
             {
                 NewScoreboardForm newScoreboardForm = new NewScoreboardForm();
+                newScoreboardForm.StartPosition = FormStartPosition.CenterParent;
                 DialogResult result = newScoreboardForm.ShowDialog(this);
 
                 if (result != DialogResult.OK)
@@ -685,6 +686,7 @@ namespace PQScoreboard
             }
 
             AddTeamForm addTeamForm = new AddTeamForm();
+            addTeamForm.StartPosition = FormStartPosition.CenterParent;
             DialogResult result = addTeamForm.ShowDialog(this);
 
             if (result != DialogResult.OK)
@@ -725,6 +727,7 @@ namespace PQScoreboard
             }
 
             AddCategoryForm addCategoryForm = new AddCategoryForm(scoreboard.Teams);
+            addCategoryForm.StartPosition = FormStartPosition.CenterParent;
             DialogResult result = addCategoryForm.ShowDialog(this);
 
             if (result != DialogResult.OK)
