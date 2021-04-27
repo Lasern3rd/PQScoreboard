@@ -51,6 +51,7 @@
             this.CheckBoxDarkMode = new System.Windows.Forms.CheckBox();
             this.NumericInputNumberOfFireworks = new System.Windows.Forms.NumericUpDown();
             this.LabelNumberOfFireworks = new System.Windows.Forms.Label();
+            this.MenuFileImportFromRemote = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewScores)).BeginInit();
             this.MenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericInputAnimationLength)).BeginInit();
@@ -97,6 +98,7 @@
             this.MenuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuFileNew,
             this.MenuFileNewFromTemplate,
+            this.MenuFileImportFromRemote,
             this.MenuFileOpen,
             this.MenuFileSave,
             this.MenuFileClose,
@@ -108,42 +110,42 @@
             // MenuFileNew
             // 
             this.MenuFileNew.Name = "MenuFileNew";
-            this.MenuFileNew.Size = new System.Drawing.Size(178, 22);
+            this.MenuFileNew.Size = new System.Drawing.Size(183, 22);
             this.MenuFileNew.Text = "New";
             this.MenuFileNew.Click += new System.EventHandler(this.MenuFileNew_Click);
             // 
             // MenuFileNewFromTemplate
             // 
             this.MenuFileNewFromTemplate.Name = "MenuFileNewFromTemplate";
-            this.MenuFileNewFromTemplate.Size = new System.Drawing.Size(178, 22);
+            this.MenuFileNewFromTemplate.Size = new System.Drawing.Size(183, 22);
             this.MenuFileNewFromTemplate.Text = "New from Template";
             this.MenuFileNewFromTemplate.Click += new System.EventHandler(this.MenuFileNewFromTemplate_Click);
             // 
             // MenuFileOpen
             // 
             this.MenuFileOpen.Name = "MenuFileOpen";
-            this.MenuFileOpen.Size = new System.Drawing.Size(178, 22);
+            this.MenuFileOpen.Size = new System.Drawing.Size(183, 22);
             this.MenuFileOpen.Text = "Open";
             this.MenuFileOpen.Click += new System.EventHandler(this.MenuFileOpen_Click);
             // 
             // MenuFileSave
             // 
             this.MenuFileSave.Name = "MenuFileSave";
-            this.MenuFileSave.Size = new System.Drawing.Size(178, 22);
+            this.MenuFileSave.Size = new System.Drawing.Size(183, 22);
             this.MenuFileSave.Text = "Save";
             this.MenuFileSave.Click += new System.EventHandler(this.MenuFileSave_Click);
             // 
             // MenuFileClose
             // 
             this.MenuFileClose.Name = "MenuFileClose";
-            this.MenuFileClose.Size = new System.Drawing.Size(178, 22);
+            this.MenuFileClose.Size = new System.Drawing.Size(183, 22);
             this.MenuFileClose.Text = "Close";
             this.MenuFileClose.Click += new System.EventHandler(this.MenuFileClose_Click);
             // 
             // MenuFileExit
             // 
             this.MenuFileExit.Name = "MenuFileExit";
-            this.MenuFileExit.Size = new System.Drawing.Size(178, 22);
+            this.MenuFileExit.Size = new System.Drawing.Size(183, 22);
             this.MenuFileExit.Text = "Exit";
             this.MenuFileExit.Click += new System.EventHandler(this.MenuFileExit_Click);
             // 
@@ -286,6 +288,13 @@
             this.LabelNumberOfFireworks.TabIndex = 13;
             this.LabelNumberOfFireworks.Text = "Number of Fireworks:";
             // 
+            // MenuFileImportFromRemote
+            // 
+            this.MenuFileImportFromRemote.Name = "MenuFileImportFromRemote";
+            this.MenuFileImportFromRemote.Size = new System.Drawing.Size(183, 22);
+            this.MenuFileImportFromRemote.Text = "Import from Remote";
+            this.MenuFileImportFromRemote.Click += new System.EventHandler(this.MenuFileImportFromRemote_Click);
+            // 
             // EditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -341,6 +350,7 @@
         private System.Windows.Forms.NumericUpDown NumericInputNumberOfFireworks;
         private System.Windows.Forms.Label LabelNumberOfFireworks;
         private System.Windows.Forms.ToolStripMenuItem MenuFileNewFromTemplate;
+        private System.Windows.Forms.ToolStripMenuItem MenuFileImportFromRemote;
     }
 }
 

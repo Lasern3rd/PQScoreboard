@@ -350,7 +350,7 @@ namespace PQScoreboard
         {
             // 'we are the champions' starts at 34 secs
             // hence we want f(1) = 3, f(ExpectedNoCtg) = 34
-            decimal m = 31m / (scoreboard.ExpectedNumberOfCategories - 1m);
+            decimal m = 31m / (Math.Max(scoreboard.ExpectedNumberOfCategories, 2) - 1m);
             return Math.Max(3m, (scoreboard.NumberOfCategories - 1) * m + 3m);
         }
 
@@ -573,6 +573,76 @@ namespace PQScoreboard
             }
 
             log.Debug("EditorForm::MenuFileNewFromTemplate_Click() }");
+        }
+
+        private void MenuFileImportFromRemote_Click(object sender, EventArgs e)
+        {
+            log.Debug("EditorForm::MenuFileImportFromRemote_Click() {");
+
+            if (hasUnsavedChanges)
+            {
+                try
+                {
+                    DialogResult result = MessageBox.Show("There are unsaved changes. Save?", "Information",
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+
+                    switch (result)
+                    {
+                        case DialogResult.Yes:
+                            if (!SaveToFile())
+                            {
+                                log.Debug("EditorForm::MenuFileImportFromRemote_Click() } // cancelled (save existing)");
+                                return;
+                            }
+                            break;
+
+                        case DialogResult.No:
+                            break;
+
+                        default:
+                        case DialogResult.Cancel:
+                            log.Debug("EditorForm::MenuFileImportFromRemote_Click() } // cancelled (save existing)");
+                            return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to import from remote: Failed to save existing scoreboard.", ex);
+                    MessageBox.Show("Failed to import from remote: Failed to save existing scoreboard: " + ex.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    log.Debug("EditorForm::MenuFileImportFromRemote_Click() }");
+                    return;
+                }
+            }
+
+            try
+            {
+                ImportFromRemoteForm importFromRemoteForm = new ImportFromRemoteForm();
+                importFromRemoteForm.StartPosition = FormStartPosition.CenterParent;
+                DialogResult result = importFromRemoteForm.ShowDialog(this);
+
+                if (result != DialogResult.OK)
+                {
+                    log.Debug("EditorForm::MenuFileImportFromRemote_Click() } // cancelled");
+                    return;
+                }
+
+                scoreboard = importFromRemoteForm.Scoreboard;
+
+                hasUnsavedChanges = true;
+                NumericInputAnimationLength.Value = GetSuggestedAnimationLength();
+                UpdateScores();
+                UpdateControls();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to import from remote.", ex);
+                MessageBox.Show("Failed to import from remote: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            log.Debug("EditorForm::MenuFileImportFromRemote_Click() }");
         }
 
         private void MenuFileSave_Click(object sender, EventArgs e)

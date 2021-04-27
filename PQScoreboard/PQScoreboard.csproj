@@ -69,6 +69,12 @@
     <Compile Include="EditorView\AddTeamForm.Designer.cs">
       <DependentUpon>AddTeamForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditorView\ImportFromRemoteForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditorView\ImportFromRemoteForm.Designer.cs">
+      <DependentUpon>ImportFromRemoteForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditorView\ModifyTeamForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -84,6 +90,8 @@
       <DependentUpon>NewScoreboardForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FileHandlers\Json\JsonHandler.cs" />
+    <Compile Include="Remote\StandingsResponse.cs" />
+    <Compile Include="Remote\LoginData.cs" />
     <Compile Include="ResultView\Firework.cs" />
     <Compile Include="ResultView\ResultForm.cs">
       <SubType>Form</SubType>
@@ -110,6 +118,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditorView\EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditorView\ImportFromRemoteForm.resx">
+      <DependentUpon>ImportFromRemoteForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditorView\ModifyTeamForm.resx">
       <DependentUpon>ModifyTeamForm.cs</DependentUpon>
