@@ -90,7 +90,6 @@
       <DependentUpon>NewScoreboardForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FileHandlers\Json\JsonHandler.cs" />
-    <Compile Include="Remote\StandingsResponse.cs" />
     <Compile Include="Remote\LoginData.cs" />
     <Compile Include="ResultView\Firework.cs" />
     <Compile Include="ResultView\ResultForm.cs">
