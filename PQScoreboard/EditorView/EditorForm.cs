@@ -270,6 +270,66 @@ namespace PQScoreboard
             return cancelled;
         }
 
+        private void ModifyCategory(int category)
+        {
+            log.Debug("EditorForm::ModifyCategory() {");
+
+            try
+            {
+                string categoryName = scoreboard.GetCategoryName(category);
+
+                ModifyCategoryForm modifyCategoryForm = new ModifyCategoryForm(categoryName);
+                modifyCategoryForm.StartPosition = FormStartPosition.CenterParent;
+                DialogResult result = modifyCategoryForm.ShowDialog(this);
+
+                if (result != DialogResult.OK)
+                {
+                    log.Debug("EditorForm::ModifyCategory() } // cancelled");
+                    return;
+                }
+
+                switch (modifyCategoryForm.Result)
+                {
+                    case ModifyCategoryForm.ModifyCategoryResult.Rename:
+                        string newCategoryName = modifyCategoryForm.CategoryName;
+                        if (string.Equals(categoryName, newCategoryName))
+                        {
+                            log.Debug("EditorForm::ModifyCategory() } // new category name == old category name");
+                            return;
+                        }
+                        scoreboard.RenameCategory(category, modifyCategoryForm.CategoryName);
+                        hasUnsavedChanges = true;
+                        UpdateScores();
+                        UpdateControls();
+                        break;
+
+                    case ModifyCategoryForm.ModifyCategoryResult.Remove:
+                        if (DialogResult.Yes != MessageBox.Show("Really remove category '" + categoryName + "'?", "Information",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Information))
+                        {
+                            log.Debug("EditorForm::ModifyCategory() } // cancelled remove team");
+                            return;
+                        }
+                        scoreboard.RemoveCategory(category);
+                        hasUnsavedChanges = true;
+                        UpdateScores();
+                        UpdateControls();
+                        break;
+
+                    default:
+                        throw new NotImplementedException("Not implemented.");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to modify category.", ex);
+                MessageBox.Show("Failed to modify category: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            log.Debug("EditorForm::ModifyCategory() }");
+        }
+
         private void ModifyTeam(int team)
         {
             log.Debug("EditorForm::ModifyTeam() {");
@@ -917,13 +977,14 @@ namespace PQScoreboard
 
         private void DataGridViewScores_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            // only handle clicks on header
-            if (e.RowIndex != -1 || e.ColumnIndex < 0)
+            if (e.RowIndex == -1 && e.ColumnIndex >= 0)
             {
-                return;
+                ModifyTeam(e.ColumnIndex);
             }
-
-            ModifyTeam(e.ColumnIndex);
+            else if (e.ColumnIndex == -1 && e.RowIndex >= 0)
+            {
+                ModifyCategory(e.RowIndex);
+            }
         }
 
         #endregion

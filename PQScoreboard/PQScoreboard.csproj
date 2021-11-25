@@ -75,6 +75,12 @@
     <Compile Include="EditorView\ImportFromRemoteForm.Designer.cs">
       <DependentUpon>ImportFromRemoteForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditorView\ModifyCategoryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditorView\ModifyCategoryForm.Designer.cs">
+      <DependentUpon>ModifyCategoryForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditorView\ModifyTeamForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -120,6 +126,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditorView\ImportFromRemoteForm.resx">
       <DependentUpon>ImportFromRemoteForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditorView\ModifyCategoryForm.resx">
+      <DependentUpon>ModifyCategoryForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditorView\ModifyTeamForm.resx">
       <DependentUpon>ModifyTeamForm.cs</DependentUpon>
