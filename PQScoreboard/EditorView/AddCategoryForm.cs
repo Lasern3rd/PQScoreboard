@@ -38,6 +38,8 @@ namespace PQScoreboard
             {
                 DataGridViewScores.Rows[0].Cells[i].Value = 0;
             }
+
+            ButtonOk.Enabled = false;
         }
 
         #region properties
@@ -97,6 +99,11 @@ namespace PQScoreboard
                     Close();
                     break;
             }
+        }
+
+        private void TextboxCategoryName_TextChanged(object sender, EventArgs e)
+        {
+            ButtonOk.Enabled = !string.IsNullOrEmpty(TextboxCategoryName.Text);
         }
     }
 }

@@ -89,10 +89,6 @@ namespace PQScoreboard
             {
                 throw new ArgumentException("Invalid category name.");
             }
-            if (teams.Contains(categoryName))
-            {
-                throw new ArgumentException("Category with name '" + categoryName + "' already exists.");
-            }
 
             if (currentCategory >= categories.Length)
             {
@@ -109,10 +105,6 @@ namespace PQScoreboard
             if (string.IsNullOrWhiteSpace(categoryName))
             {
                 throw new ArgumentException("Invalid category name.");
-            }
-            if (categories.Contains(categoryName))
-            {
-                throw new ArgumentException("Category with name '" + categoryName + "' already exists.");
             }
             if (scores.Length != currentTeam)
             {
@@ -144,10 +136,6 @@ namespace PQScoreboard
             if (string.IsNullOrWhiteSpace(categoryName))
             {
                 throw new ArgumentException("Invalid category name.");
-            }
-            if (categories.Contains(categoryName))
-            {
-                throw new ArgumentException("Category with name '" + categoryName + "' already exists.");
             }
 
             categories[category] = categoryName;
@@ -191,22 +179,6 @@ namespace PQScoreboard
             }
 
             return categories[category];
-        }
-
-        public void SetScore(string teamName, string categoryName, decimal value)
-        {
-            int team = Array.IndexOf(teams, teamName);
-            if (team < 0)
-            {
-                throw new ArgumentException("Unknown team '" + teamName + "'.");
-            }
-            int category = Array.LastIndexOf(categories, categoryName);
-            if (category < 0)
-            {
-                throw new ArgumentException("Unknown category '" + categoryName + "'.");
-            }
-
-            scores[team, category] = value;
         }
 
         public bool SetScore(int team, int category, decimal value)

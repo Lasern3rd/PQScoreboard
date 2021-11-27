@@ -74,6 +74,7 @@
             this.TextboxCategoryName.Name = "TextboxCategoryName";
             this.TextboxCategoryName.Size = new System.Drawing.Size(100, 20);
             this.TextboxCategoryName.TabIndex = 0;
+            this.TextboxCategoryName.TextChanged += new System.EventHandler(this.TextboxCategoryName_TextChanged);
             this.TextboxCategoryName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextboxCategoryName_KeyDown);
             // 
             // DataGridViewScores
