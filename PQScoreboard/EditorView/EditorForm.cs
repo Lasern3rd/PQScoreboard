@@ -411,7 +411,7 @@ namespace PQScoreboard
             // 'we are the champions' starts at 34 secs
             // hence we want f(1) = 3, f(ExpectedNoCtg) = 34
             decimal m = 31m / (Math.Max(scoreboard.ExpectedNumberOfCategories, 2) - 1m);
-            return Math.Max(3m, (scoreboard.NumberOfCategories - 1) * m + 3m);
+            return Math.Max(3m, (scoreboard.NumberOfCategories - 1) * m/2 + 3m);
         }
 
         #endregion
