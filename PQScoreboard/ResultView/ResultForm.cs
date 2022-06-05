@@ -231,7 +231,8 @@ namespace PQScoreboard
             brushesCategories = new Brush[expectedNumberOfCategories--];
             for (int i = expectedNumberOfCategories; i >= 0; --i)
             {
-                colorsCategories[i] = Color.FromArgb(255, 150 - (i * 100 / expectedNumberOfCategories), 0);
+                bool changeColor = (i % 2) == 0;
+                colorsCategories[i] = changeColor ? Color.FromArgb(255, 150 - (i * 100 / expectedNumberOfCategories), 0) : Color.FromArgb(0, 180 - (i * 100 / expectedNumberOfCategories), 0);
                 brushesCategories[i] = new SolidBrush(colorsCategories[i]);
             }
 
